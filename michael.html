@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+.map path {
+  stroke: rgb(0, 0, 0);
+  fill: white;
+  stroke-width: 0.1;
+}
+
+.map2 path {
+  stroke: #fff;
+  stroke-width: 0.1;
+}
+</style>
+<body>
+Michael's test page
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
+
+<svg id="mapGoesHere" width="600px" height="600px">
+    <g class="map"></g>
+</svg>
+<script>
+    // Colors for each user-assigned district
+var districtColors = ["green","yellow", "purple"]
+
+var width =600,
+    height = 600;
+
+var svg = d3.select("#mapGoesHere")
+    .attr("width", width)
+    .attr("height", height);
+
+ function load(geojson, classname) {
+  var projection = d3.geoAlbers()
+    .fitSize([width, height], geojson);
+
+  var geoGenerator = d3.geoPath()
+    .projection(projection);
+
+  d3.select(classname)
+    .selectAll('path')
+    .data(geojson.features)
+    .enter()
+    .append('path')
+    .attr('d', geoGenerator)
+    .style("fill",function(d,i){
+        // Get the district that has been assigned by the user
+        // Should be a zero-based number
+        // or missing for unassigned areas
+          var district = d.properties.district
+          return districtColors[district];
+        });
+}    
+/* JavaScript goes here. */
+d3.json("data/Penn MCDS Data/Chester/Chester.geojson", function(error, geojson) {
+        console.log(geojson)
+        load(geojson, '.map');
+});
+
+</script>
