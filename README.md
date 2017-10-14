@@ -8,6 +8,12 @@ Starting with U.S. congressional districts in Lancaster, Delaware, Chester, Mont
   
   2010 Census
   2016 Election
+  
+County code data:
+  Chester    --- 15
+  Delaware   --- 23
+  Lancaster  --- 36
+  Montgomery --- 46
 
 
 To start server:
