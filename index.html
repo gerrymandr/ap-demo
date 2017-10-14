@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>2017 General Election</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
+
+</head>
+
+<style>
+.map path {
+  stroke: #fff;
+  stroke-width: 0.1;
+}
+</style>
+
+<body>
+  <div id="election-map">
+    <svg width="600px" height="900px">
+      <g class="map"></g>
+   </svg>
+ </div>
+
+  <script>
+// From https://ft-interactive.github.io/g-chartcolour/build/g-chartcolour.js
+var partyColours = {con: '#6da8e1', lab: '#e25050', ld: '#f0a330', ukip: '#ca6dbf', green: '#65a68c', snp: '#f2d92d', dup: '#827996', sf: '#99bf70', pc: '#99d2d0', alliance: '#ffc660', independent: '#CEC6B9', other: '#CEC6B9', sdlp: '#bed676', uup: '#6da8e1', novote: 'white', spk: '#6da8e1' /* special case for John Bercow, speaker */ };
+
+var width = 600, height = 900;
+
+function getGeoJSONWithResults(csv, geojson) {
+  var featureLookup = {};
+  geojson.features.forEach(function(feature) {
+    featureLookup[feature.properties['pcon16cd']] = feature;
+  })
+
+  var newGeojson = {type: 'FeatureCollection', features: []};
+
+  csv.forEach(function(c) {
+    var feature = featureLookup[c.ons_id];
+    if(feature) {
+      newGeojson.features.push({
+        type: 'Feature',
+        geometry: feature.geometry,
+        properties: { fill: partyColours[c.first_party.toLowerCase()] }
+      });
+    }
+  })
+
+  return newGeojson;
+}
+
+function update(geojson) {
+  var projection = d3.geoAzimuthalEqualArea()
+    .center([-1.9, 52.5])
+    .fitSize([width, height], geojson);
+
+  var geoGenerator = d3.geoPath()
+    .projection(projection);
+
+  d3.select('.map')
+    .selectAll('path')
+    .data(geojson.features)
+    .enter()
+    .append('path')
+    .attr('d', geoGenerator)
+}
+
+d3.json('test.geojson', function(err, geojson) {
+	update(geojson);
+});
+  </script>
+</body>
+</html>
