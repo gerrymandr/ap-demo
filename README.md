@@ -9,12 +9,21 @@ Starting with U.S. congressional districts in Lancaster, Delaware, Chester, Mont
   2010 Census
   2016 Election
   
-County code data:
+```County code data:
   Chester    --- 15
   Delaware   --- 23
   Lancaster  --- 36
   Montgomery --- 46
     (source: https://github.com/openelections/openelections-data-pa)
+```
+```
+Count FP10 Codes
+Chester 29
+Delaware 45
+Lancaster 71
+Montgomery 91
+Berks  11
+```
 
 To start server:
 python < 3:
