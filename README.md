@@ -16,8 +16,9 @@ Starting with U.S. congressional districts in Lancaster, Delaware, Chester, Mont
   Montgomery --- 46
     (source: https://github.com/openelections/openelections-data-pa)
 ```
+
+County FP10 Codes
 ```
-Count FP10 Codes
 Chester 29
 Delaware 45
 Lancaster 71
