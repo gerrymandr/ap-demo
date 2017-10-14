@@ -34,6 +34,13 @@ var svg = d3.select("#mapGoesHere")
   var projection = d3.geoAlbers()
     .fitSize([width, height], geojson);
 
+// Manually assign a few areas to districts
+    geojson.features[0].properties.district = 2
+        geojson.features[4].properties.district = 2
+        geojson.features[1].properties.district = 0
+        geojson.features[2].properties.district = 0
+        geojson.features[3].properties.district = 0
+
   var geoGenerator = d3.geoPath()
     .projection(projection);
 
@@ -55,6 +62,8 @@ var svg = d3.select("#mapGoesHere")
 d3.json("data/Penn MCDS Data/Chester/Chester.geojson", function(error, geojson) {
         console.log(geojson)
         load(geojson, '.map');
-});
+        
+    });
+
 
 </script>
