@@ -22,13 +22,7 @@
 <body>
   <div id="election-map">
     <svg width="500px" height="500px" style="background: #00ff00">
-      	<g class="box1">
-
-	</g>
-	<g class="box2">
-
-	</g>
-   </svg>
+    </svg>
  </div>
 
   <script>
@@ -40,22 +34,25 @@ var width = 400, height = 400;
 function loadLayerWithProjection(fname, projection) {
 
 	d3.json(fname, function(err, geojson) {
-        var layer = d3.select("svg").append(
-	var projection = d3.geoOrthographic().translate(offset).scale(scale);
 
-	 var pathGenerator = d3.geoPath().projection(projection);
+		 var layer = d3.select("svg").append("g");
+		 layer.attr("id", "layer" + (fname);
 
-	 var geoGenerator = d3.select('.box1')
-	    .selectAll('path')
-	    .data(geojson.features)
-	    .enter()
-	    .append('path')
-	    .attr('d', pathGenerator); 
-	  
+		 var pathGenerator = d3.geoPath().projection(projection);
 
-	});
+		 var geoGenerator = d3.select(layer.attr("id"))
+		    .selectAll('path')
+		    .data(geojson.features)
+		    .enter()
+		    .append('path')
+		    .attr('d', pathGenerator); 
+		  
+
+		});
 
 }
+
+loadLayerWithProjection("data/Penn County/Chester.geojson", d3.geoAlbersUsa());
   </script>
 </body>
 </html>
