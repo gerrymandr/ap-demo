@@ -63,16 +63,10 @@ function update(geojson) {
     .enter()
     .append('path')
     .attr('d', geoGenerator)
-    .style('fill', function(d) {
-      return d.properties.fill;
-    });
 }
 
 d3.json('test.geojson', function(err, geojson) {
-  d3.csv('test.csv', function(err, csv) {
-    geojson = getGeoJSONWithResults(csv, geojson);
-    update(geojson);
-  });
+	update(geojson);
 });
   </script>
 </body>

@@ -8,3 +8,11 @@ Starting with U.S. congressional districts in Lancaster, Delaware, Chester, Mont
   
   2010 Census
   2016 Election
+
+
+To start server:
+python < 3:
+python -m SimpleHTTPServer
+
+Python >= 3
+python -m http.server
