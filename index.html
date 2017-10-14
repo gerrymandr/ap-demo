@@ -21,7 +21,7 @@
 
 <body>
   <div id="election-map">
-    <svg width="600px" height="900px">
+    <svg width="500px" height="500px" style="background: #00ff00">
       	<g class="box1">
 
 	</g>
@@ -35,34 +35,27 @@
 // From https://ft-interactive.github.io/g-chartcolour/build/g-chartcolour.js
 var partyColours = {con: '#6da8e1', lab: '#e25050', ld: '#f0a330', ukip: '#ca6dbf', green: '#65a68c', snp: '#f2d92d', dup: '#827996', sf: '#99bf70', pc: '#99d2d0', alliance: '#ffc660', independent: '#CEC6B9', other: '#CEC6B9', sdlp: '#bed676', uup: '#6da8e1', novote: 'white', spk: '#6da8e1' /* special case for John Bercow, speaker */ };
 
-var width = 500, height = 500;
+var width = 400, height = 400;
 
+function loadLayerWithProjection(fname, projection) {
 
-function load(geojson, classname) {
-  var projection = d3.geoOrthographic()
-    .fitSize([width, height], geojson);
+	d3.json(fname, function(err, geojson) {
+        var layer = d3.select("svg").append(
+	var projection = d3.geoOrthographic().translate(offset).scale(scale);
 
-  var geoGenerator = d3.geoPath()
-    .projection(projection);
+	 var pathGenerator = d3.geoPath().projection(projection);
 
-  
-  d3.select(classname)
-    .selectAll('path')
-    .data(geojson.features)
-    .enter()
-    .append('path')
-    .attr('d', geoGenerator)
+	 var geoGenerator = d3.select('.box1')
+	    .selectAll('path')
+	    .data(geojson.features)
+	    .enter()
+	    .append('path')
+	    .attr('d', pathGenerator); 
+	  
+
+	});
+
 }
-
-d3.json('test2.geojson', function(err, geojson) {
-	console.log(geojson.features[0].geometry.coordinates)
-	load(geojson, '.map');
-});
-
-d3.json('test4.geojson', function(err, geojson) {
-	load(geojson, '.map2');
-});
-
   </script>
 </body>
 </html>
