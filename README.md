@@ -14,7 +14,7 @@ County code data:
   Delaware   --- 23
   Lancaster  --- 36
   Montgomery --- 46
-
+    (source: https://github.com/openelections/openelections-data-pa)
 
 To start server:
 python < 3:
