@@ -12,12 +12,22 @@
   stroke: #fff;
   stroke-width: 0.1;
 }
+
+.map2 path {
+  stroke: #fff;
+  stroke-width: 0.1;
+}
 </style>
 
 <body>
   <div id="election-map">
     <svg width="600px" height="900px">
-      <g class="map"></g>
+      	<g class="box1">
+
+	</g>
+	<g class="box2">
+
+	</g>
    </svg>
  </div>
 
@@ -25,39 +35,18 @@
 // From https://ft-interactive.github.io/g-chartcolour/build/g-chartcolour.js
 var partyColours = {con: '#6da8e1', lab: '#e25050', ld: '#f0a330', ukip: '#ca6dbf', green: '#65a68c', snp: '#f2d92d', dup: '#827996', sf: '#99bf70', pc: '#99d2d0', alliance: '#ffc660', independent: '#CEC6B9', other: '#CEC6B9', sdlp: '#bed676', uup: '#6da8e1', novote: 'white', spk: '#6da8e1' /* special case for John Bercow, speaker */ };
 
-var width = 600, height = 900;
+var width = 500, height = 500;
 
-function getGeoJSONWithResults(csv, geojson) {
-  var featureLookup = {};
-  geojson.features.forEach(function(feature) {
-    featureLookup[feature.properties['pcon16cd']] = feature;
-  })
 
-  var newGeojson = {type: 'FeatureCollection', features: []};
-
-  csv.forEach(function(c) {
-    var feature = featureLookup[c.ons_id];
-    if(feature) {
-      newGeojson.features.push({
-        type: 'Feature',
-        geometry: feature.geometry,
-        properties: { fill: partyColours[c.first_party.toLowerCase()] }
-      });
-    }
-  })
-
-  return newGeojson;
-}
-
-function update(geojson) {
-  var projection = d3.geoAzimuthalEqualArea()
-    .center([-1.9, 52.5])
+function load(geojson, classname) {
+  var projection = d3.geoOrthographic()
     .fitSize([width, height], geojson);
 
   var geoGenerator = d3.geoPath()
     .projection(projection);
 
-  d3.select('.map')
+  
+  d3.select(classname)
     .selectAll('path')
     .data(geojson.features)
     .enter()
@@ -65,9 +54,15 @@ function update(geojson) {
     .attr('d', geoGenerator)
 }
 
-d3.json('test.geojson', function(err, geojson) {
-	update(geojson);
+d3.json('test2.geojson', function(err, geojson) {
+	console.log(geojson.features[0].geometry.coordinates)
+	load(geojson, '.map');
 });
+
+d3.json('test4.geojson', function(err, geojson) {
+	load(geojson, '.map2');
+});
+
   </script>
 </body>
 </html>
