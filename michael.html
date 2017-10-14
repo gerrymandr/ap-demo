@@ -13,16 +13,17 @@
 }
 </style>
 <body>
-Michael's test page
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
 
 <svg id="mapGoesHere" width="600px" height="600px">
     <g class="map"></g>
 </svg>
+
 <script>
     // Colors for each user-assigned district
 var districtColors = ["green","yellow", "purple"]
-
+// What district are we painting areas
+var currentDistrictBrush = 2
 var width =600,
     height = 600;
 
@@ -30,40 +31,41 @@ var svg = d3.select("#mapGoesHere")
     .attr("width", width)
     .attr("height", height);
 
- function load(geojson, classname) {
-  var projection = d3.geoAlbers()
-    .fitSize([width, height], geojson);
+ 
+var geojson = []
 
-// Manually assign a few areas to districts
-    geojson.features[0].properties.district = 2
-        geojson.features[4].properties.district = 2
-        geojson.features[1].properties.district = 0
-        geojson.features[2].properties.district = 0
-        geojson.features[3].properties.district = 0
+function updateDisplay() {
+    var projection = d3.geoAlbers()
+    .fitSize([width, height], geojson);
 
   var geoGenerator = d3.geoPath()
     .projection(projection);
 
-  d3.select(classname)
+  d3.select(".map")
     .selectAll('path')
     .data(geojson.features)
-    .enter()
-    .append('path')
-    .attr('d', geoGenerator)
     .style("fill",function(d,i){
         // Get the district that has been assigned by the user
         // Should be a zero-based number
         // or missing for unassigned areas
           var district = d.properties.district
+          // Use that to determine the area's color
           return districtColors[district];
-        });
+        })
+    .enter()
+    .append('path')
+    .attr('d', geoGenerator)   
+    .on("click", function(e, i){
+        geojson.features[i].properties.district = currentDistrictBrush;
+        updateDisplay();
+  });
 }    
-/* JavaScript goes here. */
-d3.json("data/Penn MCDS Data/Chester/Chester.geojson", function(error, geojson) {
-        console.log(geojson)
-        load(geojson, '.map');
-        
-    });
+d3.json("data/Penn MCDS Data/Chester/Chester.geojson", function(error, x) {
+    geojson = x;
+    console.log(x);
+    updateDisplay();        
+});
+
 
 
 </script>
