@@ -4,6 +4,8 @@ Hosted at https://gerrymandr.github.io/ap-demo/
 
 We use D3
 
+Contributors:
+Sam Stewart (sams@umn.edu) @samstewart
 
 Starting with U.S. congressional districts in Lancaster, Delaware, Chester, Montgomery, and Berks counties, PA.
   Really starting with Chester county. 
