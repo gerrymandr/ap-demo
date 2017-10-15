@@ -33,14 +33,11 @@ click in a area that has been assigned and drag your mouse to
 assign nearby areas. 
 </p>
  <p>
-  <svg id="paletteSvg" width="500px" height="60px">
+  <svg id="paletteSvg" width="500px" height="60px" align="left">
     <g id="palette"></g>
   </svg>
-</p> 
-
-Indicates whether district is full.
-<p>
-  <svg id="scoreSvg" width="500px" height="160px">
+  <br>
+  <svg id="scoreSvg" width="500px" height="160px" align="left">
     <g id="score"></g>
     <text x=10, y=160, style="font-family:monospace">Percent Democrat</text>
   </svg>
@@ -260,6 +257,8 @@ Indicates whether district is full.
     // Refresh D3 binding between districts
     // and their scores
     function refreshScores() {
+      // Colored border for each fill tank
+      
       d3.select("#scoreSvg")
         .selectAll('.targetpop')
         .data(districtPopulation)
@@ -270,10 +269,15 @@ Indicates whether district is full.
         .attr("y", "5")
         .attr("width", "36")
         .attr("height", "100")
-        .style("fill", "none")
+        .style("fill", "white")
         .style("stroke-width", 3)
         .style("stroke", function (d, i) {
           return districtColors[i];
+        })
+        .on("click", function (e, i) {
+          currentDistrictBrush = i;
+          dragging = false;
+          refreshPalette()
         })
 
       d3.select("#scoreSvg")
@@ -309,16 +313,7 @@ Indicates whether district is full.
             return "gray"
           }
         })
-        .text(function (d, i) {
-          var dems = districtDemocrats[i];
-          var reps = districtRepublicans[i];
-          if (dems) {
-            if (dems > reps) return "" + Math.round(100 * dems / (dems + reps)) + "%"
-            else return "" + Math.round(100 * dems / (dems + reps)) + "%"
-          } else {
-            return ""
-          }
-        })
+        .text(percentageText)
         .enter()
         .append('text')
         .attr("class", "predictedWinner")
@@ -327,7 +322,19 @@ Indicates whether district is full.
         .attr("x", function (d, i) { return 10 + 40 * i })
         .attr("width", "36")
         .style("font-family", "monospace")
+        .text(percentageText)
 
+    }
+
+    function percentageText(d, i) {
+      var dems = districtDemocrats[i];
+      var reps = districtRepublicans[i];
+      if (dems) {
+        if (dems > reps) return "" + Math.round(100 * dems / (dems + reps)) + "%"
+        else return "" + Math.round(100 * dems / (dems + reps)) + "%"
+      } else {
+        return "  --"
+      }
     }
 
   </script>
