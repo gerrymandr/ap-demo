@@ -195,11 +195,12 @@ assign nearby areas.
         }).append("svg:title")
         .text(function (d, i) {
           var feature = geojson.features[i]
+          var name = feature.properties.NAME10
           pop = feature.properties.VAPERSONS
           var dems = feature.properties.democrats
           var reps = feature.properties.republicans
-          if (reps > dems) return "R +" + (reps - dems)
-          else return "D +" + (dems - reps)
+          if (reps > dems) return name + " R +" + (reps - dems)
+          else return name + " D +" + (dems - reps)
         })
 
 
