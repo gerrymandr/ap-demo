@@ -1,33 +1,32 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style>
-.map path {
-  stroke: rgb(0, 0, 0);
+path {
+  stroke: black;
   fill: white;
-  stroke-width: 0.1;
 }
 
-.map2 path {
-  stroke: #fff;
-  stroke-width: 0.1;
-}
 </style>
 <body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
+<svg id="paletteSvg" width="500px" height="60px">
+    <g id="palette"></g>
+</svg>
 
-<svg id="mapGoesHere" width="600px" height="600px">
+<svg id="mapSvg" width="600px" height="600px">
     <g class="map"></g>
 </svg>
 
 <script>
+   
     // Colors for each user-assigned district
-var districtColors = ["green","yellow", "purple"]
+var districtColors = ["green","yellow", "rgb(200, 60, 200)"]
 // What district are we painting areas
 var currentDistrictBrush = 2
 var width =600,
     height = 600;
 
-var svg = d3.select("#mapGoesHere")
+var svg = d3.select("#mapSvg")
     .attr("width", width)
     .attr("height", height);
 
@@ -41,24 +40,28 @@ function updateDisplay() {
   var geoGenerator = d3.geoPath()
     .projection(projection);
 
-  d3.select(".map")
-    .selectAll('path')
+  d3.select("#mapSvg")
+    .selectAll('g')
     .data(geojson.features)
+    .enter()
+    .append('path')
+    .style("stroke","black")
+    .style("stroke-width",1) 
     .style("fill",function(d,i){
         // Get the district that has been assigned by the user
         // Should be a zero-based number
         // or missing for unassigned areas
           var district = d.properties.district
           // Use that to determine the area's color
-          return districtColors[district];
+          if (district != null) return districtColors[district];
+          else return "white"
         })
-    .enter()
-    .append('path')
     .attr('d', geoGenerator)   
     .on("click", function(e, i){
         geojson.features[i].properties.district = currentDistrictBrush;
         updateDisplay();
   });
+  
 }    
 d3.json("data/Penn MCDS Data/Chester/Chester.geojson", function(error, x) {
     geojson = x;
@@ -66,6 +69,30 @@ d3.json("data/Penn MCDS Data/Chester/Chester.geojson", function(error, x) {
     updateDisplay();        
 });
 
+
+function drawPalette() {
+   d3.select("#paletteSvg")
+    .selectAll('circle')
+    .data(districtColors)
+    .style("stroke",function(d,i){
+          if (i == currentDistrictBrush) return "black";
+          else return districtColors[i];
+        })
+    .enter()
+    .append("circle")
+    .attr("cx",function(d,i) {return 20 + i*40})
+    .attr("cy",30)
+    .attr("r",18)
+    .style("fill",function(d,i){
+        return districtColors[i];
+      })
+    .style("stroke-width",4)  
+    .on("click", function(e, i){
+        currentDistrictBrush = i;
+        drawPalette()
+    })
+}
+drawPalette()
 
 
 </script>
