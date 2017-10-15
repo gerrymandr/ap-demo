@@ -6,6 +6,7 @@ We use D3
 
 Contributors:
 Sam Stewart (sams@umn.edu) @samstewart
+Alex Gutierrez (alexg@umn.edu)
 
 Starting with U.S. congressional districts in Lancaster, Delaware, Chester, Montgomery, and Berks counties, PA.
   Really starting with Chester county. 
