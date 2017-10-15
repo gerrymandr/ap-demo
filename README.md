@@ -1,4 +1,4 @@
-Simple demo of gerrymandering for AP
+Simple demo of gerrymandering for Associated Press
 
 We use D3
 
@@ -29,12 +29,34 @@ Berks  11
 # Data and Sources
 
 ### Shapefile of entire area of interest.
-County shapefiles are in
+County shapefile is in
+```
+data/Penn County
+```
+
+Retrieved from
+
 https://github.com/aaron-strauss/precinct-shapefiles/blob/master/pa/2011_pa_precincts.zip
+
+Used QGIS to select just a single county and
+save it as a separate geojson.
 
 
 ### Shapefile and demographics for each MCDS
+
+Complete MCDS shapefile is in
+```
+data/Penn MCDS Data
+```
+with subfolder for subsets by county.
+
+Retrieved from
+
 https://github.com/aaron-strauss/precinct-shapefiles/blob/master/pa/2011_pa_precincts.zip
+
+Used QGIS to select data for a single county and
+save it as a separate geojson.
+
 
 ### Election returns by MCDS
 
@@ -53,9 +75,12 @@ AND ST_GeometryType(ST_Intersection(a.geom, b.geom)) not in ('ST_Point', 'ST_Mul
 ```
 
 
-To start server:
-python < 3:
+### To start HTTP server:
+For python < 3:
+```
 python -m SimpleHTTPServer
-
-Python >= 3
+```
+For python >= 3
+```
 python -m http.server
+```
