@@ -77,14 +77,17 @@ assign nearby areas.
 </div> 
 
   <svg id="mapSvg" width="600px" height="600px">
-    <g class="map"></g>
-  </svg>
+      <g id="images"></g>
+      <g id="lightbox"></g>
+      <g id="areas"></g>
+      <g id="border"></g>
+    </svg>
 </main>
 
   <script>
     var pi = Math.PI,
     tau = 2 * pi;
-
+    var projection, geoGenerator;
     var nDistricts = 3
     // Colors for each user-assigned district
     var districtColors = ["green", "orange", "rgb(200, 60, 200)"]
@@ -113,14 +116,32 @@ assign nearby areas.
     var geojson = []
 
     // Main startup
+    
+
     d3.json("data_import/Chester.geojson", function (error, x) {
       geojson = x;
       initializePopulation();
       initMap();
       refreshScores();
       refreshPalette();
+      d3.json("data/Penn County/Chester.geojson", function (error, json) {
+        initBorder(json)
+      })
     });
 
+    function initBorder(borderJson) {
+      d3.select("#mapSvg")
+        .select('#border')
+        .selectAll("path")
+        .data(borderJson.features)
+        .enter()
+        .append('path')
+        .style("stroke", "blue")
+        .style("stroke-width", 5)
+        .style("fill", "none")
+        .style("opacity", "1.0")
+        .attr('d', geoGenerator)
+    }
     // Compute total population
     // and therefore desired population
     // per district
@@ -182,10 +203,10 @@ assign nearby areas.
     // Refresh D3 binding
     // between features and map areas
     function initMap() {
-      var projection = d3.geoMercator()
+       projection = d3.geoMercator()
         .fitSize([width, height], geojson);
 
-      var geoGenerator = d3.geoPath()
+       geoGenerator = d3.geoPath()
         .projection(projection);
 
       // Build background tiles
@@ -195,27 +216,28 @@ assign nearby areas.
         .translate(projection([0, 0]))
       ();
       
-      d3.select("#mapSvg").selectAll("image")
+      d3.select("#mapSvg")
+      .select("#images").selectAll("image")
       .data(tiles)
-      .enter().append("image")
+      .enter()
+      .append("image")
       .attr("xlink:href", function(d) { return "http://" + "abc"[d[1] % 3] + ".tile.openstreetmap.org/" + d[2] + "/" + d[0] + "/" + d[1] + ".png"; })
       .attr("x", function(d) { return (d[0] + tiles.translate[0]) * tiles.scale; })
       .attr("y", function(d) { return (d[1] + tiles.translate[1]) * tiles.scale; })
       .attr("width", tiles.scale)
       .attr("height", tiles.scale);
       
-      d3.select("#mapSvg").selectAll(".lightbox")
-      .data([0])
-      .enter().append("rect")
-      .attr("class","lightbox")
+      d3.select("#mapSvg").select("#lightbox").selectAll("rect")
+      .append("rect")
       .attr("x",0).attr("y",0)
       .attr("width", width)
       .attr("height", height)
       .style("fill","white")
       .style("opacity",0.6)
+      
       // Build vectors for each voting areas
       d3.select("#mapSvg")
-        .selectAll('g')
+        .selectAll('#areas')
         .data(geojson.features)
         .enter()
         .append('path')
@@ -400,6 +422,13 @@ assign nearby areas.
       } else {
         return "  --"
       }
+    }
+
+    // Return a list for each feature that 
+    // 
+  
+    function getDistanceToDistricts() {
+
     }
 
   </script>
