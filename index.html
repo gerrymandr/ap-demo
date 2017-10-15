@@ -107,7 +107,7 @@ assign nearby areas.
         var reps = feature.properties.republicans
         if ((dems != null) && (reps != null)) {
             maxBias = Math.max(maxBias, Math.abs(dems - reps))
-	}
+	      }
       }
       targetPopulation = totalPopulation / nDistricts
     }
@@ -119,13 +119,17 @@ assign nearby areas.
       var reps = feature.properties.republicans
       if (feature.properties.district != null) {
         districtPopulation[feature.properties.district] -= pop
-        districtDemocrats[feature.properties.district] -= dems
-        districtRepublicans[feature.properties.district] -= reps
+        if ((dems != null) && (reps != null)) {
+          districtDemocrats[feature.properties.district] -= dems
+          districtRepublicans[feature.properties.district] -= reps
+        }
       }
       feature.properties.district = district
       districtPopulation[feature.properties.district] += pop
-      districtDemocrats[feature.properties.district] += dems
-      districtRepublicans[feature.properties.district] += reps
+      if ((dems != null) && (reps != null)) {
+        districtDemocrats[feature.properties.district] += dems
+        districtRepublicans[feature.properties.district] += reps
+      }
       refreshScores();
     }
 
