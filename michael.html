@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <style>
     path {
-        stroke: black;
+        stroke:black;
         fill: white;
     }
     path.district0{
@@ -23,7 +23,7 @@
         <g id="palette"></g>
     </svg>
 
-    <svg id="scoreSvg" width="500px" height="120px">
+    <svg id="scoreSvg" width="500px" height="200px">
         <g id="score"></g>
     </svg>
 
@@ -36,6 +36,8 @@
         // Colors for each user-assigned district
         var districtColors = ["green", "orange", "rgb(200, 60, 200)"]
         var districtPopulation = [0, 0, 0]
+        var districtDemocrats = [0, 0, 0]
+        var districtRepublicans = [0, 0, 0]
         var totalPopulation = 0;
         // Desired population for each district
         var targetPopulation = 0;
@@ -72,6 +74,9 @@
             for (var i = 0; i < geojson.features.length; i++) {
                 var feature = geojson.features[i];
                 totalPopulation += feature.properties.VAPERSONS
+                // temp hack until voting hisotry is loaded
+                feature.properties.dems = 600 * Math.random()
+                feature.properties.reps = 600 * Math.random()
             }
             targetPopulation = totalPopulation / nDistricts
         }
@@ -79,11 +84,17 @@
         // Assign an area to a district
         function assignToDistrict(feature, district) {
             var pop = feature.properties.VAPERSONS
+            var dems = feature.properties.dems
+            var reps = feature.properties.reps
             if (feature.properties.district != null) {
                 districtPopulation[feature.properties.district] -= pop
+                districtDemocrats[feature.properties.district] -= dems
+                districtRepublicans[feature.properties.district] -= reps
             }
             feature.properties.district = district
             districtPopulation[feature.properties.district] += pop
+            districtDemocrats[feature.properties.district] += dems
+            districtRepublicans[feature.properties.district] += reps
             refreshScores();
         }
 
@@ -101,7 +112,7 @@
                 .data(geojson.features)
                 .enter()
                 .append('path')
-                .style("stroke", "black")
+                .style("stroke", "rgb(177, 176, 176)")
                 .style("stroke-width", 1)
                 .attr("class", function (d, i) {
                     // Get the district that has been assigned by the user
@@ -207,7 +218,44 @@
                     return districtColors[i];
                 })
 
+                // For each 
 
+                var predictedWinners = d3.select("#scoreSvg")
+                .selectAll('.predictedWinner')
+                .data(districtDemocrats)
+                .style("fill", function (d, i) {
+                    var dems = districtDemocrats[i];
+                    var reps = districtRepublicans[i];
+                    if (dems) {
+                        if (reps) {
+                            if (dems>reps) return "blue"
+                            else return "red"
+                        } else {
+                            return "blue"
+                        }
+                    } else {
+                        return "gray"
+                    }
+                })
+                .text(function (d, i) {
+                    var dems = districtDemocrats[i];
+                    var reps = districtRepublicans[i];
+                    if (dems) {
+                        if (dems>reps) return "" + Math.round(100* dems/(dems+reps)) + "%"
+                        else  return "" + Math.round(100* dems/(dems+reps)) + "%"                       
+                    } else {
+                        return ""
+                    }
+                })
+                .enter()
+                .append('text')
+                .attr("class", "predictedWinner")
+                .attr("height", 20)
+                .attr("y", 130)
+                .attr("x", function (d, i) { return 10 + 40 * i })
+                .attr("width", "36")               
+                .style("font-family","monospace")                
+                
         }
 
     </script>
