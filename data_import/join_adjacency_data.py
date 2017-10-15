@@ -47,8 +47,12 @@ for feature in geography['features']:
     key = feature['properties']['GEOID10']
 
     if key in adjacency_list:
+        print('%s connects to %s' % (key, adjacency_list[key]))
+
 #        feature['properties']['adjacent_features'] = list(
         feature['properties']['adjacent_features'] = list(filter(lambda x: x >= 0, map(featureIndexForGeoID, adjacency_list[key])))
-
-json.dump(geography, sys.stdout)
+        
+        print('%d connects to %s' % (featureIndexForGeoID(key), feature['properties']['adjacent_features']))
+        
+# json.dump(geography, sys.stdout)
 

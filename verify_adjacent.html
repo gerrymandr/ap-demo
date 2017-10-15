@@ -5,30 +5,24 @@
     stroke: black;
     fill: white;
   }
-
+  path.blank {
+    fill: white;
+  }
   path.district0 {
     fill: green;
-    opacity: 0.80;
   }
 
   path.district1 {
     fill: orange;
-    opacity: 0.80;
   }
 
   path.district2 {
-    opacity: 0.80;
     fill: rgb(200, 60, 200);
-  }
-  path.unassigned {
-    opacity: 0.60;
   }
 </style>
 
 <body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
-  <script src="//d3js.org/d3-tile.v0.0.min.js"></script>
-  <script src="//d3js.org/topojson.v1.min.js"></script>
   
   <h2>Redistrict Chester County, PA</h2>
 This page allows you to assign the voting areas of Chester county to one of 
@@ -40,26 +34,21 @@ Click here to select which district you want to build.  You can also
 click in a area that has been assigned and drag your mouse to
 assign nearby areas. 
 </p>
- <span float = "left">
-  <svg id="paletteSvg" width="200px" height="60px" style="float:left; clear:left">
+ <p>
+  <svg id="paletteSvg" width="500px" height="60px" align="left">
     <g id="palette"></g>
   </svg>
   <br>
-  <svg id="scoreSvg" width="200px" height="160px" style="float:left; clear:left">
+  <svg id="scoreSvg" width="500px" height="160px" align="left">
     <g id="score"></g>
     <text x=10, y=160, style="font-family:monospace">Percent Democrat</text>
   </svg>
-</span> 
-<span float="left">
+</p> 
   <svg id="mapSvg" width="600px" height="600px">
     <g class="map"></g>
   </svg>
-</span>
 
   <script>
-    var pi = Math.PI,
-    tau = 2 * pi;
-
     var nDistricts = 3
     // Colors for each user-assigned district
     var districtColors = ["green", "orange", "rgb(200, 60, 200)"]
@@ -96,6 +85,10 @@ assign nearby areas.
       refreshPalette();
     });
 
+    function highlightNeighbors(feature) {
+	return	d3.selectAll('#mapSvg path').filter(function (d, i) { return feature.properties.adjacent_features.indexOf(i) > -1 }).attr('class', 'district0');
+    }
+
     // Compute total population
     // and therefore desired population
     // per district
@@ -107,7 +100,7 @@ assign nearby areas.
         var reps = feature.properties.republicans
         if ((dems != null) && (reps != null)) {
             maxBias = Math.max(maxBias, Math.abs(dems - reps))
-	      }
+	}
       }
       targetPopulation = totalPopulation / nDistricts
     }
@@ -119,17 +112,13 @@ assign nearby areas.
       var reps = feature.properties.republicans
       if (feature.properties.district != null) {
         districtPopulation[feature.properties.district] -= pop
-        if ((dems != null) && (reps != null)) {
-          districtDemocrats[feature.properties.district] -= dems
-          districtRepublicans[feature.properties.district] -= reps
-        }
+        districtDemocrats[feature.properties.district] -= dems
+        districtRepublicans[feature.properties.district] -= reps
       }
       feature.properties.district = district
       districtPopulation[feature.properties.district] += pop
-      if ((dems != null) && (reps != null)) {
-        districtDemocrats[feature.properties.district] += dems
-        districtRepublicans[feature.properties.district] += reps
-      }
+      districtDemocrats[feature.properties.district] += dems
+      districtRepublicans[feature.properties.district] += reps
       refreshScores();
     }
 
@@ -157,40 +146,14 @@ assign nearby areas.
     // Refresh D3 binding
     // between features and map areas
     function initMap() {
-      var projection = d3.geoMercator()
+      var projection = d3.geoAlbers()
         .fitSize([width, height], geojson);
 
       var geoGenerator = d3.geoPath()
         .projection(projection);
 
-      // Build background tiles
-      var tiles = d3.tile()
-        .size([width, height])
-        .scale(projection.scale() * tau)
-        .translate(projection([0, 0]))
-      ();
-      
-      d3.select("#mapSvg").selectAll("image")
-      .data(tiles)
-      .enter().append("image")
-      .attr("xlink:href", function(d) { return "http://" + "abc"[d[1] % 3] + ".tile.openstreetmap.org/" + d[2] + "/" + d[0] + "/" + d[1] + ".png"; })
-      .attr("x", function(d) { return (d[0] + tiles.translate[0]) * tiles.scale; })
-      .attr("y", function(d) { return (d[1] + tiles.translate[1]) * tiles.scale; })
-      .attr("width", tiles.scale)
-      .attr("height", tiles.scale);
-      
-      d3.select("#mapSvg").selectAll(".lightbox")
-      .data([0])
-      .enter().append("rect")
-      .attr("class","lightbox")
-      .attr("x",0).attr("y",0)
-      .attr("width", width)
-      .attr("height", height)
-      .style("fill","white")
-      .style("opacity",0.6)
-      // Build vectors for each voting areas
       d3.select("#mapSvg")
-        .selectAll('g')
+	.selectAll('g')
         .data(geojson.features)
         .enter()
         .append('path')
@@ -207,22 +170,28 @@ assign nearby areas.
           var district = d.properties.district
           // Use that to determine the area's style
           if (district != null) return "district" + district;
-          else return "unassigned"
+          else return ""
         })
         .attr('d', geoGenerator)
-        .style("fill", selectColor)
+//        .style("fill", selectColor)
+        .on("click", function (e, i) {
+	   d3.selectAll('#mapSvg path').attr('class', 'blank')
+	   highlightNeighbors(e)
+//          assignToDistrict(geojson.features[i], currentDistrictBrush)
+//         refreshMap(i);
+        })
         .on("mousedown", function (e, i) {
           if (geojson.features[i].properties.district != null) {
             currentDistrictBrush = geojson.features[i].properties.district
+            dragging = true;
             refreshPalette();
-          } else {
-            assignToDistrict(geojson.features[i], currentDistrictBrush)
-            refreshMap(i);
           }
-          dragging = true;
+
         })
+
         .on("mouseup", function (e, i) {
           dragging = false;
+
         })
         .on("mouseenter", function (e, i) {
           if (dragging) {
@@ -234,15 +203,14 @@ assign nearby areas.
         }).append("svg:title")
         .text(function (d, i) {
           var feature = geojson.features[i]
-          var name = feature.properties.NAME10
           pop = feature.properties.VAPERSONS
           var dems = feature.properties.democrats
           var reps = feature.properties.republicans
-          if (reps > dems) return name + " R +" + (reps - dems)
-          else return name + " D +" + (dems - reps)
+          if (reps > dems) return "R +" + (reps - dems)
+          else return "D +" + (dems - reps)
         })
 
-        
+
     }
 
     // Refresh D3 binding
@@ -259,7 +227,7 @@ assign nearby areas.
           if (district != null) return "district" + district;
           else return ""
         })
-        .style("fill", selectColor)
+//        .style("fill", selectColor)
     }
 
     // Refresh D3 binding between
@@ -277,9 +245,9 @@ assign nearby areas.
         .attr("cx", function (d, i) { return 30 + i * 40 })
         .attr("cy", 30)
         .attr("r", 18)
-        .style("fill", function (d, i) {
-          return districtColors[i];
-        })
+//        .style("fill", function (d, i) {
+ //         return districtColors[i];
+  //      })
         .style("stroke-width", 4)
         // Shouldn't have to set this here
         // but it doesn't seem to get initialized properly
@@ -309,7 +277,7 @@ assign nearby areas.
         .attr("y", "5")
         .attr("width", "36")
         .attr("height", "100")
-        .style("fill", "white")
+//        .style("fill", "white")
         .style("stroke-width", 3)
         .style("stroke", function (d, i) {
           return districtColors[i];
@@ -330,30 +298,16 @@ assign nearby areas.
         .attr("class", "fraction")
         .attr("x", function (d, i) { return 10 + 40 * i })
         .attr("width", "36")
-        .style("fill", function (d, i) {
-          return districtColors[i];
-        })
+//        .style("fill", function (d, i) {
+ //         return districtColors[i];
+  //      })
 
-      // For each 
+      // for each 
 
       var predictedWinners = d3.select("#scoreSvg")
         .selectAll('.predictedWinner')
         .data(districtDemocrats)
-        .style("fill", function (d, i) {
-          var dems = districtDemocrats[i];
-          var reps = districtRepublicans[i];
-          if (dems) {
-            if (reps) {
-              if (dems > reps) return "blue"
-              else return "red"
-            } else {
-              return "blue"
-            }
-          } else {
-            return "gray"
-          }
-        })
-        .text(percentageText)
+       .text(percentageText)
         .enter()
         .append('text')
         .attr("class", "predictedWinner")

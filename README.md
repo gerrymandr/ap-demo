@@ -1,5 +1,7 @@
 Simple demo of gerrymandering for Associated Press
 
+Hosted at https://gerrymandr.github.io/ap-demo/
+
 We use D3
 
 
@@ -7,7 +9,7 @@ Starting with U.S. congressional districts in Lancaster, Delaware, Chester, Mont
   Really starting with Chester county. 
   
   2010 Census
-  2016 Election
+  2016 Election. Election data pulled from: https://github.com/openelections/openelections-data-pa
   
 ```County code data:
   Chester    --- 15
@@ -59,7 +61,9 @@ save it as a separate geojson.
 
 
 ### Election returns by MCDS
-
+```
+data/chester_county_votes.txt
+```
 
 ### Adjacency matrix for MCDS
 Computed in PostGIS from MCDS shape files
