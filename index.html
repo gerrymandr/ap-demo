@@ -11,12 +11,9 @@
 .map path {
   stroke: #fff;
   stroke-width: 0.1;
+  fill: black;
 }
 
-.map2 path {
-  stroke: #fff;
-  stroke-width: 0.1;
-}
 </style>
 
 <body>
@@ -26,33 +23,34 @@
  </div>
 
   <script>
-// From https://ft-interactive.github.io/g-chartcolour/build/g-chartcolour.js
-var partyColours = {con: '#6da8e1', lab: '#e25050', ld: '#f0a330', ukip: '#ca6dbf', green: '#65a68c', snp: '#f2d92d', dup: '#827996', sf: '#99bf70', pc: '#99d2d0', alliance: '#ffc660', independent: '#CEC6B9', other: '#CEC6B9', sdlp: '#bed676', uup: '#6da8e1', novote: 'white', spk: '#6da8e1' /* special case for John Bercow, speaker */ };
 
-var width = 400, height = 400;
+function fnameToLayerName(fname) {
+  return "layer_" + fname.replace(/ |\//g, "").toLowerCase()
+}
 
 function loadLayerWithProjection(fname, projection) {
-
 	d3.json(fname, function(err, geojson) {
 
 		 var layer = d3.select("svg").append("g");
-		 layer.attr("id", "layer" + (fname);
+
+		 var layerName = fnameToLayerName(fname);
+
+		 layer.attr("id", layerName);
+		 layer.attr("class", "map");
 
 		 var pathGenerator = d3.geoPath().projection(projection);
 
-		 var geoGenerator = d3.select(layer.attr("id"))
+		 var geoGenerator = layer 
 		    .selectAll('path')
 		    .data(geojson.features)
 		    .enter()
 		    .append('path')
 		    .attr('d', pathGenerator); 
-		  
-
-		});
-
+	});
 }
 
-loadLayerWithProjection("data/Penn County/Chester.geojson", d3.geoAlbersUsa());
-  </script>
+//loadLayerWithProjection("test2.geojson", d3.geoOrthographic());
+loadLayerWithProjection("data/Penn County/Chester.geojson", d3.geoAlbersUsa().center([0,0]));
+</script>
 </body>
 </html>
