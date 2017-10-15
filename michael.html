@@ -25,8 +25,15 @@ path {
 var nDistricts = 3   
     // Colors for each user-assigned district
 var districtColors = ["green","yellow", "rgb(200, 60, 200)"]
+var districtPopulation = [0, 0, 0]
+var totalPopulation = 0;
+var targetPopulation = 0;
+
 // What district are we painting areas
 var currentDistrictBrush = 2
+var dragging = false;
+
+
 var width =600,
     height = 600;
 
@@ -37,7 +44,35 @@ var svg = d3.select("#mapSvg")
  
 var geojson = []
 
-function updateDisplay() {
+// Main startup
+d3.json("data/Penn MCDS Data/Chester/Chester.geojson", function(error, x) {
+    geojson = x;
+    initializePopulation();
+    refreshMap();
+    refreshScores(); 
+    refreshPalette();      
+});
+
+
+function initializePopulation() {
+    for (var i = 0; i < geojson.features.length; i++) {
+        var feature = geojson.features[i];
+        totalPopulation += feature.properties.VAPERSONS
+    }
+    targetPopulation = totalPopulation / nDistricts
+}
+
+function assignToDistrict(feature, district) {
+    var pop = feature.properties.VAPERSONS 
+    if (feature.properties.district != null) {
+        districtPopulation[feature.properties.district] -= pop
+    }
+    feature.properties.district = district
+    districtPopulation[feature.properties.district] += pop
+    refreshScores();
+}
+
+function refreshMap() {
     var projection = d3.geoAlbers()
     .fitSize([width, height], geojson);
 
@@ -62,21 +97,39 @@ function updateDisplay() {
         })
     .attr('d', geoGenerator)   
     .on("click", function(e, i){
-        geojson.features[i].properties.district = currentDistrictBrush;
-        updateDisplay();
-        drawScores();
+        if (geojson.features[i].properties.district == null) {
+            assignToDistrict(geojson.features[i], currentDistrictBrush)
+            refreshMap();
+        } 
+        
+  })
+  .on("mousedown", function(e, i){
+    if (geojson.features[i].properties.district != null) {           
+        currentDistrictBrush = geojson.features[i].properties.district
+        dragging = true;
+        refreshPalette();
+    }
+    
+})
+.on("mouseup", function(e, i){
+                   dragging = false;
+        
+  })
+  .on("mouseenter", function(e, i){
+    if (dragging) {
+        assignToDistrict(geojson.features[i], currentDistrictBrush)
+        refreshMap();
+        refreshPalette();
+    }
+        
   });
+
   
 }    
-d3.json("data/Penn MCDS Data/Chester/Chester.geojson", function(error, x) {
-    geojson = x;
-    console.log(x);
-    updateDisplay();
-    drawScores();        
-});
 
 
-function drawPalette() {
+
+function refreshPalette() {
    d3.select("#paletteSvg")
     .selectAll('circle')
     .data(districtColors)
@@ -95,26 +148,12 @@ function drawPalette() {
     .style("stroke-width",4)  
     .on("click", function(e, i){
         currentDistrictBrush = i;
-        drawPalette()
+        dragging = false;
+        refreshPalette()
     })
 }
-drawPalette()
 
-function drawScores() {
-    var totalPopulation = 0;
-    var districtPopulation = new Array(nDistricts);
-    for (var i =0; i<nDistricts; i++) districtPopulation[i] = 0;
-    for (var i = 0; i < geojson.features.length; i++) {
-    }
-    for (var i = 0; i < geojson.features.length; i++) {
-        var feature = geojson.features[i];
-        totalPopulation += feature.properties.VAPERSONS
-        var district = feature.properties.district
-        if (district != null) {
-            districtPopulation[district] += feature.properties.VAPERSONS
-        }
-    }
-    var targetPopulation = totalPopulation / nDistricts
+function refreshScores() {
     d3.select("#scoreSvg")
     .selectAll('.targetpop')
     .data(districtPopulation)
