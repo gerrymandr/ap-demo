@@ -38,6 +38,7 @@
         var districtPopulation = [0, 0, 0]
         var districtDemocrats = [0, 0, 0]
         var districtRepublicans = [0, 0, 0]
+        var maxBias = 0
         var totalPopulation = 0;
         // Desired population for each district
         var targetPopulation = 0;
@@ -75,8 +76,12 @@
                 var feature = geojson.features[i];
                 totalPopulation += feature.properties.VAPERSONS
                 // temp hack until voting hisotry is loaded
-                feature.properties.dems = 600 * Math.random()
-                feature.properties.reps = 600 * Math.random()
+                feature.properties.democrats = 600 * Math.random()
+                feature.properties.republicans = 600 * Math.random()
+
+                var dems = feature.properties.democrats
+                var reps = feature.properties.republicans
+                maxBias = Math.max(maxBias,Math.abs(dems-reps))
             }
             targetPopulation = totalPopulation / nDistricts
         }
@@ -84,8 +89,8 @@
         // Assign an area to a district
         function assignToDistrict(feature, district) {
             var pop = feature.properties.VAPERSONS
-            var dems = feature.properties.dems
-            var reps = feature.properties.reps
+            var dems = feature.properties.democrats
+            var reps = feature.properties.republicans
             if (feature.properties.district != null) {
                 districtPopulation[feature.properties.district] -= pop
                 districtDemocrats[feature.properties.district] -= dems
@@ -97,6 +102,27 @@
             districtRepublicans[feature.properties.district] += reps
             refreshScores();
         }
+
+        function selectColor (d, i)  {
+                    var district = d.properties.district
+                    if (district != null) return "";
+                    else {
+                        var feature = geojson.features[i]
+                        var dems = feature.properties.democrats
+                        var reps = feature.properties.republicans
+                        if (dems>reps) {
+                            var hue = 240 //blue
+                            var saturation = 100
+                            var lightness = Math.trunc(100 * (dems-reps)/ maxBias) 
+                        } else {
+                            var hue = 0 //red
+                            var saturation = 100
+                            var lightness = Math.trunc(100 * (reps-dems)/ maxBias) 
+                        }
+                        var color = "hsl("+hue+"," + saturation + "%," + lightness +  "% )"
+                        return color
+                    }
+                }
 
         // Refresh D3 binding
         // between features and map areas
@@ -110,6 +136,7 @@
             d3.select("#mapSvg")
                 .selectAll('g')
                 .data(geojson.features)
+                .style("fill",  selectColor )
                 .enter()
                 .append('path')
                 .style("stroke", "rgb(177, 176, 176)")
@@ -119,7 +146,7 @@
                     // Should be a zero-based number
                     // or missing for unassigned areas
                     var district = d.properties.district
-                    // Use that to determine the area's color
+                    // Use that to determine the area's style
                     if (district != null) return "district" + district;
                     else return ""
                 })
@@ -136,6 +163,8 @@
                     }
 
                 })
+                .style("fill",  selectColor )
+                
                 .on("mouseup", function (e, i) {
                     dragging = false;
 
