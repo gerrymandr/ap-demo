@@ -21,14 +21,30 @@
 
 <body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
+  
+  <h2>Redistrict Chester County, PA</h2>
+This page allows you to assign the voting areas of Chester county to one of 
+three districts (green, orange and purple).
+Then see whether the Democrats or Republicans will win each district.
+
+<p>
+Click here to select which district you want to build.  You can also
+click in a area that has been assigned and drag your mouse to
+assign nearby areas. 
+</p>
+ <p>
   <svg id="paletteSvg" width="500px" height="60px">
     <g id="palette"></g>
   </svg>
+</p> 
 
-  <svg id="scoreSvg" width="500px" height="150px">
+Indicates whether district is full.
+<p>
+  <svg id="scoreSvg" width="500px" height="160px">
     <g id="score"></g>
+    <text x=10, y=160, style="font-family:monospace">Percent Democrat</text>
   </svg>
-
+</p> 
   <svg id="mapSvg" width="600px" height="600px">
     <g class="map"></g>
   </svg>
