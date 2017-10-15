@@ -1,5 +1,7 @@
 Simple demo of gerrymandering for Associated Press
 
+Hosted at https://gerrymandr.github.io/ap-demo/
+
 We use D3
 
 
@@ -59,7 +61,9 @@ save it as a separate geojson.
 
 
 ### Election returns by MCDS
-
+```
+data/chester_county_votes.txt
+```
 
 ### Adjacency matrix for MCDS
 Computed in PostGIS from MCDS shape files
