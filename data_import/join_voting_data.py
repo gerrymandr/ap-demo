@@ -1,8 +1,8 @@
 #! /bin/python
 
-import json, csv
+import json, csv, sys
 
-geography = json.load(open('../data/Penn MCDS Data/Chester/Chester.geojson'));
+geography = json.load(sys.stdin);
 
 votes = {};
 
@@ -22,6 +22,5 @@ for feature in geography['features']:
        feature['properties']['republicans'] = votes[key]['republicans'] 
        feature['properties']['democrats'] = votes[key]['democrats'] 
 
-with open('Chester_with_votes.geojson', 'w') as out:
-    json.dump(geography, out)
+json.dump(geography, sys.stdout)
 
