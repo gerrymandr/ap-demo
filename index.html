@@ -168,22 +168,18 @@ assign nearby areas.
         })
         .attr('d', geoGenerator)
         .style("fill", selectColor)
-        .on("click", function (e, i) {
-          assignToDistrict(geojson.features[i], currentDistrictBrush)
-          refreshMap(i);
-        })
         .on("mousedown", function (e, i) {
           if (geojson.features[i].properties.district != null) {
             currentDistrictBrush = geojson.features[i].properties.district
-            dragging = true;
             refreshPalette();
+          } else {
+            assignToDistrict(geojson.features[i], currentDistrictBrush)
+            refreshMap(i);
           }
-
+          dragging = true;
         })
-
         .on("mouseup", function (e, i) {
           dragging = false;
-
         })
         .on("mouseenter", function (e, i) {
           if (dragging) {
