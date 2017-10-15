@@ -1,6 +1,28 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style>
+body {
+     font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+     min-height: 100vh;  /* tell body to fill viewport */
+     display: flex;
+     flex-direction: column;
+     }
+
+main {
+    display: flex;
+    flex-direction: row;
+}
+
+#controls {
+    flex-direction: column;
+    align-items: center;
+}
+
+h2 {
+   font-size: x-large;
+   text-align: center;
+}
+
   path {
     stroke: black;
     fill: white;
@@ -36,11 +58,14 @@ three districts (green, orange and purple).
 Then see whether the Democrats or Republicans will win each district.
 
 <p>
-Click here to select which district you want to build.  You can also
+Click on the circles to 
+select which district you want to build.  You can also
 click in a area that has been assigned and drag your mouse to
 assign nearby areas. 
 </p>
- <span float = "left">
+
+<main>
+<div id="controls">
   <svg id="paletteSvg" width="200px" height="60px" style="float:left; clear:left">
     <g id="palette"></g>
   </svg>
@@ -49,12 +74,12 @@ assign nearby areas.
     <g id="score"></g>
     <text x=10, y=160, style="font-family:monospace">Percent Democrat</text>
   </svg>
-</span> 
-<span float="left">
+</div> 
+
   <svg id="mapSvg" width="600px" height="600px">
     <g class="map"></g>
   </svg>
-</span>
+</main>
 
   <script>
     var pi = Math.PI,
