@@ -78,7 +78,7 @@ Indicates whether district is full.
     var geojson = []
 
     // Main startup
-    d3.json("data/Penn MCDS Data/Chester/Chester.geojson", function (error, x) {
+    d3.json("data_import/Chester.geojson", function (error, x) {
       geojson = x;
       initializePopulation();
       initMap();
@@ -92,14 +92,12 @@ Indicates whether district is full.
     function initializePopulation() {
       for (var i = 0; i < geojson.features.length; i++) {
         var feature = geojson.features[i];
-        totalPopulation += feature.properties.VAPERSONS
-        // temp hack until voting hisotry is loaded
-        feature.properties.democrats = Math.trunc(600 * Math.random())
-        feature.properties.republicans = Math.trunc(600 * Math.random())
-
+        totalPopulation += feature.properties.VAPERSONS 
         var dems = feature.properties.democrats
         var reps = feature.properties.republicans
-        maxBias = Math.max(maxBias, Math.abs(dems - reps))
+        if ((dems != null) && (reps != null)) {
+            maxBias = Math.max(maxBias, Math.abs(dems - reps))
+	}
       }
       targetPopulation = totalPopulation / nDistricts
     }
@@ -154,7 +152,6 @@ Indicates whether district is full.
       d3.select("#mapSvg")
         .selectAll('g')
         .data(geojson.features)
-        .style("fill", selectColor)
         .enter()
         .append('path')
         .attr("id", function (d, i) {
@@ -173,6 +170,7 @@ Indicates whether district is full.
           else return ""
         })
         .attr('d', geoGenerator)
+        .style("fill", selectColor)
         .on("click", function (e, i) {
           assignToDistrict(geojson.features[i], currentDistrictBrush)
           refreshMap(i);
@@ -185,7 +183,6 @@ Indicates whether district is full.
           }
 
         })
-        .style("fill", selectColor)
 
         .on("mouseup", function (e, i) {
           dragging = false;
