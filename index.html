@@ -115,11 +115,11 @@
         if (dems > reps) {
           var hue = 240 //blue
           var saturation = 60
-          var lightness = 75 + Math.trunc(25 * (dems - reps) / maxBias)
+          var lightness = 100 - Math.trunc(25 * (dems - reps) / maxBias)
         } else {
           var hue = 0 //red
           var saturation = 60
-          var lightness = 75 + Math.trunc(25 * (reps - dems) / maxBias)
+          var lightness = 100 - Math.trunc(25 * (reps - dems) / maxBias)
         }
         var color = "hsl(" + hue + "," + saturation + "%," + lightness + "% )"
         return color
