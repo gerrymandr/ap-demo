@@ -21,14 +21,27 @@
 
 <body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
-  <svg id="paletteSvg" width="500px" height="60px">
+  
+  <h2>Redistrict Chester County, PA</h2>
+This page allows you to assign the voting areas of Chester county to one of 
+three districts (green, orange and purple).
+Then see whether the Democrats or Republicans will win each district.
+
+<p>
+Click here to select which district you want to build.  You can also
+click in a area that has been assigned and drag your mouse to
+assign nearby areas. 
+</p>
+ <p>
+  <svg id="paletteSvg" width="500px" height="60px" align="left">
     <g id="palette"></g>
   </svg>
-
-  <svg id="scoreSvg" width="500px" height="150px">
+  <br>
+  <svg id="scoreSvg" width="500px" height="160px" align="left">
     <g id="score"></g>
+    <text x=10, y=160, style="font-family:monospace">Percent Democrat</text>
   </svg>
-
+</p> 
   <svg id="mapSvg" width="600px" height="600px">
     <g class="map"></g>
   </svg>
@@ -76,31 +89,26 @@
     function initializePopulation() {
       for (var i = 0; i < geojson.features.length; i++) {
         var feature = geojson.features[i];
-        totalPopulation += feature.properties.VAPERSONS
-        // temp hack until voting hisotry is loaded
-        feature.properties.democrats = Math.trunc(600 * Math.random())
-        feature.properties.republicans = Math.trunc(600 * Math.random())
-
+        totalPopulation += feature.properties.VAPERSONS 
         var dems = feature.properties.democrats
         var reps = feature.properties.republicans
-        maxBias = Math.max(maxBias, Math.abs(dems - reps))
+        if ((dems != null) && (reps != null)) {
+            maxBias = Math.max(maxBias, Math.abs(dems - reps))
+	}
       }
       targetPopulation = totalPopulation / nDistricts
     }
 
     // Assign an area to a district
     function assignToDistrict(feature, district) {
-
       var pop = feature.properties.VAPERSONS
       var dems = feature.properties.democrats
       var reps = feature.properties.republicans
-
       if (feature.properties.district != null) {
         districtPopulation[feature.properties.district] -= pop
         districtDemocrats[feature.properties.district] -= dems
         districtRepublicans[feature.properties.district] -= reps
       }
-
       feature.properties.district = district
       districtPopulation[feature.properties.district] += pop
       districtDemocrats[feature.properties.district] += dems
@@ -108,9 +116,6 @@
       refreshScores();
     }
 
-   function highlightNeighbors(feature) {
-
-   }
     function selectColor(d, i) {
       var district = d.properties.district
       if (district != null) return "";
@@ -121,11 +126,11 @@
         if (dems > reps) {
           var hue = 240 //blue
           var saturation = 60
-          var lightness = 75 + Math.trunc(25 * (dems - reps) / maxBias)
+          var lightness = 100 - Math.trunc(25 * (dems - reps) / maxBias)
         } else {
           var hue = 0 //red
           var saturation = 60
-          var lightness = 75 + Math.trunc(25 * (reps - dems) / maxBias)
+          var lightness = 100 - Math.trunc(25 * (reps - dems) / maxBias)
         }
         var color = "hsl(" + hue + "," + saturation + "%," + lightness + "% )"
         return color
@@ -144,7 +149,6 @@
       d3.select("#mapSvg")
         .selectAll('g')
         .data(geojson.features)
-        .style("fill", selectColor)
         .enter()
         .append('path')
         .attr("id", function (d, i) {
@@ -163,8 +167,11 @@
           else return ""
         })
         .attr('d', geoGenerator)
+        .style("fill", selectColor)
         .on("click", function (e, i) {
-	  highlightNeighbors(geojson.features[i]);
+	  d3.select('#mapSvg g')
+            .
+          assignToDistrict(geojson.features[i], currentDistrictBrush)
           refreshMap(i);
         })
         .on("mousedown", function (e, i) {
@@ -175,7 +182,6 @@
           }
 
         })
-        .style("fill", selectColor)
 
         .on("mouseup", function (e, i) {
           dragging = false;
@@ -253,6 +259,8 @@
     // Refresh D3 binding between districts
     // and their scores
     function refreshScores() {
+      // Colored border for each fill tank
+      
       d3.select("#scoreSvg")
         .selectAll('.targetpop')
         .data(districtPopulation)
@@ -263,10 +271,15 @@
         .attr("y", "5")
         .attr("width", "36")
         .attr("height", "100")
-        .style("fill", "none")
+        .style("fill", "white")
         .style("stroke-width", 3)
         .style("stroke", function (d, i) {
           return districtColors[i];
+        })
+        .on("click", function (e, i) {
+          currentDistrictBrush = i;
+          dragging = false;
+          refreshPalette()
         })
 
       d3.select("#scoreSvg")
@@ -283,7 +296,7 @@
           return districtColors[i];
         })
 
-      // For each 
+      // for each 
 
       var predictedWinners = d3.select("#scoreSvg")
         .selectAll('.predictedWinner')
@@ -302,16 +315,7 @@
             return "gray"
           }
         })
-        .text(function (d, i) {
-          var dems = districtDemocrats[i];
-          var reps = districtRepublicans[i];
-          if (dems) {
-            if (dems > reps) return "" + Math.round(100 * dems / (dems + reps)) + "%"
-            else return "" + Math.round(100 * dems / (dems + reps)) + "%"
-          } else {
-            return ""
-          }
-        })
+        .text(percentageText)
         .enter()
         .append('text')
         .attr("class", "predictedWinner")
@@ -320,7 +324,19 @@
         .attr("x", function (d, i) { return 10 + 40 * i })
         .attr("width", "36")
         .style("font-family", "monospace")
+        .text(percentageText)
 
+    }
+
+    function percentageText(d, i) {
+      var dems = districtDemocrats[i];
+      var reps = districtRepublicans[i];
+      if (dems) {
+        if (dems > reps) return "" + Math.round(100 * dems / (dems + reps)) + "%"
+        else return "" + Math.round(100 * dems / (dems + reps)) + "%"
+      } else {
+        return "  --"
+      }
     }
 
   </script>
