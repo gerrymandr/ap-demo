@@ -9,7 +9,7 @@ Starting with U.S. congressional districts in Lancaster, Delaware, Chester, Mont
   Really starting with Chester county. 
   
   2010 Census
-  2016 Election
+  2016 Election. Election data pulled from: https://github.com/openelections/openelections-data-pa
   
 ```County code data:
   Chester    --- 15
