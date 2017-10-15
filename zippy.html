@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <style>
     path {
-        stroke:black;
+        stroke: black;
         fill: white;
     }
     path.district0{
@@ -15,6 +15,8 @@
     path.district2{
         fill: rgb(200, 60, 200);
     }
+
+
 </style>
 
 <body>
@@ -23,7 +25,7 @@
         <g id="palette"></g>
     </svg>
 
-    <svg id="scoreSvg" width="500px" height="200px">
+    <svg id="scoreSvg" width="500px" height="120px">
         <g id="score"></g>
     </svg>
 
@@ -36,9 +38,6 @@
         // Colors for each user-assigned district
         var districtColors = ["green", "orange", "rgb(200, 60, 200)"]
         var districtPopulation = [0, 0, 0]
-        var districtDemocrats = [0, 0, 0]
-        var districtRepublicans = [0, 0, 0]
-        var maxBias = 0
         var totalPopulation = 0;
         // Desired population for each district
         var targetPopulation = 0;
@@ -56,18 +55,21 @@
             .attr("width", width)
             .attr("height", height);
 
-
         var geojson = []
 
         // Main startup
         d3.json("data/Penn MCDS Data/Chester/Chester.geojson", function (error, x) {
             geojson = x;
             initializePopulation();
-            refreshMap();
+	    initMap()
+            // refreshMap();
             refreshScores();
             refreshPalette();
+
         });
 
+
+	// Run on init
         // Compute total population
         // and therefore desired population
         // per district
@@ -75,85 +77,77 @@
             for (var i = 0; i < geojson.features.length; i++) {
                 var feature = geojson.features[i];
                 totalPopulation += feature.properties.VAPERSONS
-                // temp hack until voting hisotry is loaded
-                feature.properties.democrats = 600 * Math.random()
-                feature.properties.republicans = 600 * Math.random()
-
-                var dems = feature.properties.democrats
-                var reps = feature.properties.republicans
-                maxBias = Math.max(maxBias,Math.abs(dems-reps))
             }
             targetPopulation = totalPopulation / nDistricts
         }
 
-        // Assign an area to a district
+	// Run when a division is colored
+        // Assign a division to a district
         function assignToDistrict(feature, district) {
             var pop = feature.properties.VAPERSONS
-            var dems = feature.properties.democrats
-            var reps = feature.properties.republicans
             if (feature.properties.district != null) {
                 districtPopulation[feature.properties.district] -= pop
-                districtDemocrats[feature.properties.district] -= dems
-                districtRepublicans[feature.properties.district] -= reps
             }
             feature.properties.district = district
             districtPopulation[feature.properties.district] += pop
-            districtDemocrats[feature.properties.district] += dems
-            districtRepublicans[feature.properties.district] += reps
             refreshScores();
         }
 
-        function selectColor (d, i)  {
-                    var district = d.properties.district
-                    if (district != null) return "";
-                    else {
-                        var feature = geojson.features[i]
-                        var dems = feature.properties.democrats
-                        var reps = feature.properties.republicans
-                        if (dems>reps) {
-                            var hue = 240 //blue
-                            var saturation = 60
-                            var lightness = 75 + Math.trunc(25 * (dems-reps)/ maxBias) 
-                        } else {
-                            var hue = 0 //red
-                            var saturation = 60
-                            var lightness = 75 + Math.trunc(25 * (reps-dems)/ maxBias) 
-                        }
-                        var color = "hsl("+hue+"," + saturation + "%," + lightness +  "% )"
-                        return color
-                    }
-                }
-
         // Refresh D3 binding
         // between features and map areas
-        function refreshMap() {
+        function refreshMap(division) {
+            d3.select('#division'+division)
+                .attr("class", function (d, i) {
+                    // Get the district that has been assigned by the user
+                    // Should be a zero-based number
+                    // or missing for unassigned areas
+			// d.properties.district has already been updated
+			var district = d.properties.district
+                        // Use that to determine the area's color
+                        if (district != null) return "district" + district;
+                        else return ""
+                })
+                .style("fill", function (d, i) {
+		     district = d.properties.district
+                     return districtColors[district];
+                })
+
+        }
+
+
+        // Set up D3 binding
+        // between features and map areas
+        function initMap() {
+
             var projection = d3.geoAlbers()
                 .fitSize([width, height], geojson);
 
             var geoGenerator = d3.geoPath()
                 .projection(projection);
-
             d3.select("#mapSvg")
                 .selectAll('g')
                 .data(geojson.features)
-                .style("fill",  selectColor )
                 .enter()
                 .append('path')
-                .style("stroke", "rgb(177, 176, 176)")
+                .style("stroke", "black")
                 .style("stroke-width", 1)
                 .attr("class", function (d, i) {
                     // Get the district that has been assigned by the user
                     // Should be a zero-based number
                     // or missing for unassigned areas
-                    var district = d.properties.district
-                    // Use that to determine the area's style
-                    if (district != null) return "district" + district;
-                    else return ""
+			var district = d.properties.district
+                        // Use that to determine the area's color
+                        if (district != null) return "district" + district;
+                        else return ""
                 })
+	        .attr("id", function (d,i) {
+		    // give each division an id
+		    return "division"+i
+		})
                 .attr('d', geoGenerator)
                 .on("click", function (e, i) {
                     assignToDistrict(geojson.features[i], currentDistrictBrush)
-                    refreshMap();
+                    refreshMap(i);
                 })
                 .on("mousedown", function (e, i) {
                     if (geojson.features[i].properties.district != null) {
@@ -163,8 +157,6 @@
                     }
 
                 })
-                .style("fill",  selectColor )
-                
                 .on("mouseup", function (e, i) {
                     dragging = false;
 
@@ -172,15 +164,16 @@
                 .on("mouseenter", function (e, i) {
                     if (dragging) {
                         assignToDistrict(geojson.features[i], currentDistrictBrush)
-                        refreshMap();
+                        refreshMap(i);
                         refreshPalette();
                     }
-
-                });
-
-
-        }
-
+                })
+		.append("svg:title")
+		    .text(function(d, i) {
+		        var feature = geojson.features[i]
+			pop = feature.properties.VAPERSONS
+			return "pop "+pop  })
+	}
 
         // Refresh D3 binding between
         // the districts and the palette
@@ -247,44 +240,7 @@
                     return districtColors[i];
                 })
 
-                // For each 
 
-                var predictedWinners = d3.select("#scoreSvg")
-                .selectAll('.predictedWinner')
-                .data(districtDemocrats)
-                .style("fill", function (d, i) {
-                    var dems = districtDemocrats[i];
-                    var reps = districtRepublicans[i];
-                    if (dems) {
-                        if (reps) {
-                            if (dems>reps) return "blue"
-                            else return "red"
-                        } else {
-                            return "blue"
-                        }
-                    } else {
-                        return "gray"
-                    }
-                })
-                .text(function (d, i) {
-                    var dems = districtDemocrats[i];
-                    var reps = districtRepublicans[i];
-                    if (dems) {
-                        if (dems>reps) return "" + Math.round(100* dems/(dems+reps)) + "%"
-                        else  return "" + Math.round(100* dems/(dems+reps)) + "%"                       
-                    } else {
-                        return ""
-                    }
-                })
-                .enter()
-                .append('text')
-                .attr("class", "predictedWinner")
-                .attr("height", 20)
-                .attr("y", 130)
-                .attr("x", function (d, i) { return 10 + 40 * i })
-                .attr("width", "36")               
-                .style("font-family","monospace")                
-                
         }
 
     </script>
