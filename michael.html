@@ -13,12 +13,16 @@ path {
     <g id="palette"></g>
 </svg>
 
+<svg id="scoreSvg" width="500px" height="120px">
+        <g id="score"></g>
+    </svg>
+    
 <svg id="mapSvg" width="600px" height="600px">
     <g class="map"></g>
 </svg>
 
 <script>
-   
+var nDistricts = 3   
     // Colors for each user-assigned district
 var districtColors = ["green","yellow", "rgb(200, 60, 200)"]
 // What district are we painting areas
@@ -60,13 +64,15 @@ function updateDisplay() {
     .on("click", function(e, i){
         geojson.features[i].properties.district = currentDistrictBrush;
         updateDisplay();
+        drawScores();
   });
   
 }    
 d3.json("data/Penn MCDS Data/Chester/Chester.geojson", function(error, x) {
     geojson = x;
     console.log(x);
-    updateDisplay();        
+    updateDisplay();
+    drawScores();        
 });
 
 
@@ -94,5 +100,50 @@ function drawPalette() {
 }
 drawPalette()
 
+function drawScores() {
+    var totalPopulation = 0;
+    var districtPopulation = new Array(nDistricts);
+    for (var i =0; i<nDistricts; i++) districtPopulation[i] = 0;
+    for (var i = 0; i < geojson.features.length; i++) {
+    }
+    for (var i = 0; i < geojson.features.length; i++) {
+        var feature = geojson.features[i];
+        totalPopulation += feature.properties.VAPERSONS
+        var district = feature.properties.district
+        if (district != null) {
+            districtPopulation[district] += feature.properties.VAPERSONS
+        }
+    }
+    var targetPopulation = totalPopulation / nDistricts
+    d3.select("#scoreSvg")
+    .selectAll('.targetpop')
+    .data(districtPopulation)
+    .enter()
+    .append('rect')
+    .attr("class", "targetpop")
+     .attr("x", function (d,i) {return 10 + 40*i})
+    .attr("y", "5")
+    .attr("width", "36")
+    .attr("height", "100")
+    .style("fill","none")
+    .style("stroke-width",2)
+    .style("stroke","grey")  
+
+    d3.select("#scoreSvg")
+    .selectAll('.fraction')
+    .data(districtPopulation)
+    .attr("height", function (d,i) {return 100 * districtPopulation[i] / targetPopulation})
+    .attr("y", function (d,i) {return 5+ 100 - (100 * districtPopulation[i] / targetPopulation)})
+    .enter()
+    .append('rect')
+    .attr("class", "fraction")
+    .attr("x", function (d,i) {return 10 + 40*i})
+    .attr("width", "36")
+    .style("fill",function(d,i){
+        return districtColors[i];
+      })
+
+
+}
 
 </script>
