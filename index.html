@@ -43,7 +43,7 @@ h2 {
     fill: rgb(200, 60, 200);
   }
   path.unassigned {
-    opacity: 0.60;
+    opacity: 0.80;
   }
 </style>
 
@@ -188,11 +188,11 @@ assign nearby areas.
         var reps = feature.properties.republicans
         if (dems > reps) {
           var hue = 240 //blue
-          var saturation = 60
+          var saturation = 70
           var lightness = 100 - Math.trunc(25 * (dems - reps) / maxBias)
         } else {
           var hue = 0 //red
-          var saturation = 60
+          var saturation = 70
           var lightness = 100 - Math.trunc(25 * (reps - dems) / maxBias)
         }
         var color = "hsl(" + hue + "," + saturation + "%," + lightness + "% )"
@@ -245,7 +245,7 @@ assign nearby areas.
           // give each division an id
           return "division" + i
         })
-        .style("stroke", "rgb(177, 176, 176)")
+        .style("stroke", "rgb(200, 200, 200)")
         .style("stroke-width", 1)
         .attr("class", function (d, i) {
           // Get the district that has been assigned by the user
