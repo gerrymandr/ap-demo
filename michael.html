@@ -1,188 +1,188 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style>
-path {
-  stroke: black;
-  fill: white;
-}
-
+    path {
+        stroke: black;
+        fill: white;
+    }
 </style>
-<body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
-<svg id="paletteSvg" width="500px" height="60px">
-    <g id="palette"></g>
-</svg>
 
-<svg id="scoreSvg" width="500px" height="120px">
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
+    <svg id="paletteSvg" width="500px" height="60px">
+        <g id="palette"></g>
+    </svg>
+
+    <svg id="scoreSvg" width="500px" height="120px">
         <g id="score"></g>
     </svg>
-    
-<svg id="mapSvg" width="600px" height="600px">
-    <g class="map"></g>
-</svg>
 
-<script>
-var nDistricts = 3   
-    // Colors for each user-assigned district
-var districtColors = ["green","yellow", "rgb(200, 60, 200)"]
-var districtPopulation = [0, 0, 0]
-var totalPopulation = 0;
-var targetPopulation = 0;
+    <svg id="mapSvg" width="600px" height="600px">
+        <g class="map"></g>
+    </svg>
 
-// What district are we painting areas
-var currentDistrictBrush = 2
-var dragging = false;
+    <script>
+        var nDistricts = 3
+        // Colors for each user-assigned district
+        var districtColors = ["green", "yellow", "rgb(200, 60, 200)"]
+        var districtPopulation = [0, 0, 0]
+        var totalPopulation = 0;
+        var targetPopulation = 0;
 
-
-var width =600,
-    height = 600;
-
-var svg = d3.select("#mapSvg")
-    .attr("width", width)
-    .attr("height", height);
-
- 
-var geojson = []
-
-// Main startup
-d3.json("data/Penn MCDS Data/Chester/Chester.geojson", function(error, x) {
-    geojson = x;
-    initializePopulation();
-    refreshMap();
-    refreshScores(); 
-    refreshPalette();      
-});
+        // What district are we painting areas
+        var currentDistrictBrush = 2
+        var dragging = false;
 
 
-function initializePopulation() {
-    for (var i = 0; i < geojson.features.length; i++) {
-        var feature = geojson.features[i];
-        totalPopulation += feature.properties.VAPERSONS
-    }
-    targetPopulation = totalPopulation / nDistricts
-}
+        var width = 600,
+            height = 600;
 
-function assignToDistrict(feature, district) {
-    var pop = feature.properties.VAPERSONS 
-    if (feature.properties.district != null) {
-        districtPopulation[feature.properties.district] -= pop
-    }
-    feature.properties.district = district
-    districtPopulation[feature.properties.district] += pop
-    refreshScores();
-}
+        var svg = d3.select("#mapSvg")
+            .attr("width", width)
+            .attr("height", height);
 
-function refreshMap() {
-    var projection = d3.geoAlbers()
-    .fitSize([width, height], geojson);
 
-  var geoGenerator = d3.geoPath()
-    .projection(projection);
+        var geojson = []
 
-  d3.select("#mapSvg")
-    .selectAll('g')
-    .data(geojson.features)
-    .enter()
-    .append('path')
-    .style("stroke","black")
-    .style("stroke-width",1) 
-    .style("fill",function(d,i){
-        // Get the district that has been assigned by the user
-        // Should be a zero-based number
-        // or missing for unassigned areas
-          var district = d.properties.district
-          // Use that to determine the area's color
-          if (district != null) return districtColors[district];
-          else return "white"
-        })
-    .attr('d', geoGenerator)   
-    .on("click", function(e, i){
-        if (geojson.features[i].properties.district == null) {
-            assignToDistrict(geojson.features[i], currentDistrictBrush)
+        // Main startup
+        d3.json("data/Penn MCDS Data/Chester/Chester.geojson", function (error, x) {
+            geojson = x;
+            initializePopulation();
             refreshMap();
-        } 
-        
-  })
-  .on("mousedown", function(e, i){
-    if (geojson.features[i].properties.district != null) {           
-        currentDistrictBrush = geojson.features[i].properties.district
-        dragging = true;
-        refreshPalette();
-    }
-    
-})
-.on("mouseup", function(e, i){
-                   dragging = false;
-        
-  })
-  .on("mouseenter", function(e, i){
-    if (dragging) {
-        assignToDistrict(geojson.features[i], currentDistrictBrush)
-        refreshMap();
-        refreshPalette();
-    }
-        
-  });
-
-  
-}    
+            refreshScores();
+            refreshPalette();
+        });
 
 
+        function initializePopulation() {
+            for (var i = 0; i < geojson.features.length; i++) {
+                var feature = geojson.features[i];
+                totalPopulation += feature.properties.VAPERSONS
+            }
+            targetPopulation = totalPopulation / nDistricts
+        }
 
-function refreshPalette() {
-   d3.select("#paletteSvg")
-    .selectAll('circle')
-    .data(districtColors)
-    .style("stroke",function(d,i){
-          if (i == currentDistrictBrush) return "black";
-          else return districtColors[i];
-        })
-    .enter()
-    .append("circle")
-    .attr("cx",function(d,i) {return 20 + i*40})
-    .attr("cy",30)
-    .attr("r",18)
-    .style("fill",function(d,i){
-        return districtColors[i];
-      })
-    .style("stroke-width",4)  
-    .on("click", function(e, i){
-        currentDistrictBrush = i;
-        dragging = false;
-        refreshPalette()
-    })
-}
+        function assignToDistrict(feature, district) {
+            var pop = feature.properties.VAPERSONS
+            if (feature.properties.district != null) {
+                districtPopulation[feature.properties.district] -= pop
+            }
+            feature.properties.district = district
+            districtPopulation[feature.properties.district] += pop
+            refreshScores();
+        }
 
-function refreshScores() {
-    d3.select("#scoreSvg")
-    .selectAll('.targetpop')
-    .data(districtPopulation)
-    .enter()
-    .append('rect')
-    .attr("class", "targetpop")
-     .attr("x", function (d,i) {return 10 + 40*i})
-    .attr("y", "5")
-    .attr("width", "36")
-    .attr("height", "100")
-    .style("fill","none")
-    .style("stroke-width",2)
-    .style("stroke","grey")  
+        function refreshMap() {
+            var projection = d3.geoAlbers()
+                .fitSize([width, height], geojson);
 
-    d3.select("#scoreSvg")
-    .selectAll('.fraction')
-    .data(districtPopulation)
-    .attr("height", function (d,i) {return 100 * districtPopulation[i] / targetPopulation})
-    .attr("y", function (d,i) {return 5+ 100 - (100 * districtPopulation[i] / targetPopulation)})
-    .enter()
-    .append('rect')
-    .attr("class", "fraction")
-    .attr("x", function (d,i) {return 10 + 40*i})
-    .attr("width", "36")
-    .style("fill",function(d,i){
-        return districtColors[i];
-      })
+            var geoGenerator = d3.geoPath()
+                .projection(projection);
+
+            d3.select("#mapSvg")
+                .selectAll('g')
+                .data(geojson.features)
+                .enter()
+                .append('path')
+                .style("stroke", "black")
+                .style("stroke-width", 1)
+                .style("fill", function (d, i) {
+                    // Get the district that has been assigned by the user
+                    // Should be a zero-based number
+                    // or missing for unassigned areas
+                    var district = d.properties.district
+                    // Use that to determine the area's color
+                    if (district != null) return districtColors[district];
+                    else return "white"
+                })
+                .attr('d', geoGenerator)
+                .on("click", function (e, i) {
+                    if (geojson.features[i].properties.district == null) {
+                        assignToDistrict(geojson.features[i], currentDistrictBrush)
+                        refreshMap();
+                    }
+
+                })
+                .on("mousedown", function (e, i) {
+                    if (geojson.features[i].properties.district != null) {
+                        currentDistrictBrush = geojson.features[i].properties.district
+                        dragging = true;
+                        refreshPalette();
+                    }
+
+                })
+                .on("mouseup", function (e, i) {
+                    dragging = false;
+
+                })
+                .on("mouseenter", function (e, i) {
+                    if (dragging) {
+                        assignToDistrict(geojson.features[i], currentDistrictBrush)
+                        refreshMap();
+                        refreshPalette();
+                    }
+
+                });
 
 
-}
+        }
 
-</script>
+
+
+        function refreshPalette() {
+            d3.select("#paletteSvg")
+                .selectAll('circle')
+                .data(districtColors)
+                .style("stroke", function (d, i) {
+                    if (i == currentDistrictBrush) return "black";
+                    else return districtColors[i];
+                })
+                .enter()
+                .append("circle")
+                .attr("cx", function (d, i) { return 20 + i * 40 })
+                .attr("cy", 30)
+                .attr("r", 18)
+                .style("fill", function (d, i) {
+                    return districtColors[i];
+                })
+                .style("stroke-width", 4)
+                .on("click", function (e, i) {
+                    currentDistrictBrush = i;
+                    dragging = false;
+                    refreshPalette()
+                })
+        }
+
+        function refreshScores() {
+            d3.select("#scoreSvg")
+                .selectAll('.targetpop')
+                .data(districtPopulation)
+                .enter()
+                .append('rect')
+                .attr("class", "targetpop")
+                .attr("x", function (d, i) { return 10 + 40 * i })
+                .attr("y", "5")
+                .attr("width", "36")
+                .attr("height", "100")
+                .style("fill", "none")
+                .style("stroke-width", 2)
+                .style("stroke", "grey")
+
+            d3.select("#scoreSvg")
+                .selectAll('.fraction')
+                .data(districtPopulation)
+                .attr("height", function (d, i) { return 100 * districtPopulation[i] / targetPopulation })
+                .attr("y", function (d, i) { return 5 + 100 - (100 * districtPopulation[i] / targetPopulation) })
+                .enter()
+                .append('rect')
+                .attr("class", "fraction")
+                .attr("x", function (d, i) { return 10 + 40 * i })
+                .attr("width", "36")
+                .style("fill", function (d, i) {
+                    return districtColors[i];
+                })
+
+
+        }
+
+    </script>
