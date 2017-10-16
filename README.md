@@ -1,13 +1,16 @@
-Simple demo of gerrymandering for Associated Press
+# Simple demo of gerrymandering for Associated Press
 
 Hosted at https://gerrymandr.github.io/ap-demo/
 
-We use D3
 
-Contributors:
-Sam Stewart (sams@umn.edu) @samstewart
+### Contributors:
 
-Alex Gutierrez (alexg@umn.edu)
+* Sam Stewart sams@umn.edu @samstewart
+* Alex Gutierrez alexg@umn.edu
+* Michael Altmann michael.altmann@gmail.com
+* Nina Amenta  amenta@cs.ucdavis.edu
+
+We use D3 for the front end and QGis, Python and PostGis for data maniulation
 
 Starting with U.S. congressional districts in Lancaster, Delaware, Chester, Montgomery, and Berks counties, PA.
   Really starting with Chester county. 
@@ -32,7 +35,7 @@ Montgomery 91
 Berks  11
 ```
 
-# Data and Sources
+## Data and Sources
 
 ### Shapefile of entire area of interest.
 County shapefile is in
@@ -84,6 +87,10 @@ AND ST_GeometryType(ST_Intersection(a.geom, b.geom)) not in ('ST_Point', 'ST_Mul
 
 
 ### To start HTTP server:
+If you are a developer hosting these files locally, you
+will need to serve them up from a web server. It doesn't
+matte rth etechnology, but for Python, here are the instructions.
+
 For python < 3:
 ```
 python -m SimpleHTTPServer
