@@ -78,7 +78,10 @@ assign nearby areas.
 
   <svg id="mapSvg" width="600px" height="600px">
       <g id="images"></g>
-      <g id="lightbox"></g>
+      <g id="lightbox">
+        <rect x=0 y=0 width="600px" height="600px" style="fill:white;opacity:.65">
+        </rect>
+      </g>
       <g id="areas"></g>
       <g id="border"></g>
     </svg>
@@ -104,7 +107,7 @@ assign nearby areas.
     // Is the mouse down
     var dragging = false;
 
-
+    var minLightness = 40;
     var width = 600,
       height = 600;
 
@@ -189,11 +192,11 @@ assign nearby areas.
         if (dems > reps) {
           var hue = 240 //blue
           var saturation = 70
-          var lightness = 100 - Math.trunc(25 * (dems - reps) / maxBias)
+          var lightness = 100 - Math.trunc(minLightness * (dems - reps) / maxBias)
         } else {
           var hue = 0 //red
           var saturation = 70
-          var lightness = 100 - Math.trunc(25 * (reps - dems) / maxBias)
+          var lightness = 100 - Math.trunc(minLightness * (reps - dems) / maxBias)
         }
         var color = "hsl(" + hue + "," + saturation + "%," + lightness + "% )"
         return color
@@ -227,13 +230,6 @@ assign nearby areas.
       .attr("width", tiles.scale)
       .attr("height", tiles.scale);
       
-      d3.select("#mapSvg").select("#lightbox").selectAll("rect")
-      .append("rect")
-      .attr("x",0).attr("y",0)
-      .attr("width", width)
-      .attr("height", height)
-      .style("fill","white")
-      .style("opacity",0.6)
       
       // Build vectors for each voting areas
       d3.select("#mapSvg")
@@ -424,11 +420,17 @@ assign nearby areas.
       }
     }
 
+
+// Work in progress for a greedy algorithm to
+// assign areas to districts.
+
     // Return a list for each feature that 
-    // 
+    // indicates the distance from the feature to 
+    // each of the districts.
+    // Distance should be very large or null
+    // if the feature cannot reach the district.
   
     function getDistanceToDistricts() {
-
     }
 
   </script>
