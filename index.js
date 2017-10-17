@@ -2,6 +2,8 @@ var pi = Math.PI,
     tau = 2 * pi;
 var projection, geoGenerator;
 var nDistricts = 3
+var oversizeThreshold = 1.03;
+
 // Colors for each user-assigned district
 var districtColors = ["green", "orange", "rgb(200, 60, 200)"]
 var districtPopulation = [0, 0, 0]
@@ -272,7 +274,15 @@ function refreshScores() {
             dragging = false;
             refreshPalette()
         })
-
+    var nOversized = 0;
+    for (var d=0; d< nDistricts; d++) {
+        if ( (districtPopulation[d] / targetPopulation ) > oversizeThreshold ) nOversized ++;
+    }
+    if (nOversized == 0) {
+        d3.select("#overflowWarning").style("visibility","hidden")
+    } else {
+        d3.select("#overflowWarning").style("visibility","")        
+    }
     d3.select("#scoreSvg")
         .selectAll('.fraction')
         .data(districtPopulation)

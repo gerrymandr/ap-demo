@@ -79,17 +79,20 @@
   </p>
 
   <main>
-    <div id="controls">
+    <div id="controls" style="width:200px">
       <svg id="paletteSvg" width="200px" height="60px" style="float:left; clear:left">
         <g id="palette"></g>
       </svg>
       <br>
-      <svg id="scoreSvg" width="200px" height="160px" style="float:left; clear:left">
+      <svg id="scoreSvg" width="200px" height="180px" style="float:left; clear:left">
         <g id="score"></g>
         <text x=10, y=160, style="font-family:monospace">Percent Democrat</text>
       </svg>
+      <div id="overflowWarning"  style="float:left; clear:left;visibility:hidden">
+          Sorry, your redistricting plan has been rejected by the courts because some of the 
+          districts are too large.
+      </div>
     </div>
-
     <svg id="mapSvg" width="600px" height="600px">
       <g id="images"></g>
       <g id="lightbox">
@@ -99,7 +102,7 @@
       <g id="areas"></g>
       <g id="border"></g>
     </svg>
-
+    
   </main>
 </body>
 
