@@ -75,8 +75,9 @@
       make the three districts?</li>
   </ul>
   <p>
-    Click on the circles to select which district you want to build. You can also click in a area that has been assigned and
-    drag your mouse to assign nearby areas.
+    Click on the circles to select which district you want to build. You can also click in an area that has been assigned and
+    drag your mouse to assign nearby areas. Use the Fill button to expand the districts to fill the whole
+    map.
   </p>
 
   <main>
@@ -85,11 +86,11 @@
         <g id="palette"></g>
       </svg>
       <br>
-      <svg id="scoreSvg" width="200px" height="180px" style="float:left; clear:left">
+      <svg id="scoreSvg" width="200px" height="200px" style="float:left; clear:left">
         <g id="score"></g>
-        <text x=10, y=160, style="font-family:monospace">Percent Democrat</text>
+        <text x=10, y=180, style="font-family:monospace">Percent Democrat</text>
       </svg>
-      <button onclick="doExpand()" style="float:left; clear:left;"> Fill precincts</button>
+      <button onclick="doExpand()" style="float:left; clear:left; font-size:12pt;"> Fill</button>
       <div id="overflowWarning"  style="float:left; clear:left;visibility:hidden">
           Sorry, your redistricting plan has been rejected by the courts because some of the 
           districts are too large.

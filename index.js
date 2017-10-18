@@ -202,8 +202,8 @@ function initMap() {
             pop = feature.properties.VAPERSONS
             var dems = feature.properties.democrats
             var reps = feature.properties.republicans
-            if (reps > dems) return "#"+ i + " " + name + " R+" + (reps - dems)
-            else return "#"+ i + " " + name + " D+" + (dems - reps)
+            if (reps > dems) return  name + " R+" + (reps - dems)
+            else return  name + " D+" + (dems - reps)
         })
 
 
@@ -270,7 +270,7 @@ function refreshScores() {
         .append('rect')
         .attr("class", "targetpop")
         .attr("x", function (d, i) { return 10 + 40 * i })
-        .attr("y", "5")
+        .attr("y", "25")
         .attr("width", "36")
         .attr("height", "100")
         .style("fill", "white")
@@ -296,7 +296,7 @@ function refreshScores() {
         .selectAll('.fraction')
         .data(districtPopulation)
         .attr("height", function (d, i) { return 100 * districtPopulation[i] / targetPopulation })
-        .attr("y", function (d, i) { return 5 + 100 - (100 * districtPopulation[i] / targetPopulation) })
+        .attr("y", function (d, i) { return 25 + 100 - (100 * districtPopulation[i] / targetPopulation) })
         .enter()
         .append('rect')
         .attr("class", "fraction")
@@ -330,7 +330,7 @@ function refreshScores() {
         .append('text')
         .attr("class", "predictedWinner")
         .attr("height", 20)
-        .attr("y", 130)
+        .attr("y", 150)
         .attr("x", function (d, i) { return 10 + 40 * i })
         .attr("width", "36")
         .style("font-family", "monospace")
