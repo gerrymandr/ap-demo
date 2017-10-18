@@ -33,12 +33,12 @@ var svg = d3.select("#mapSvg")
 
 var geojson = null;
 var topology = null;
+var expander = null;
 // Main startup
-
-
 d3.json("data_import/Chester.topojson", function (error, topo) {
     topology = topo;
     geojson  = topojson.feature(topology, topology.objects.Chester);
+    expander = new SimpleExpander(topology);
     initializePopulation();
     initMap();
     refreshScores();
@@ -46,6 +46,10 @@ d3.json("data_import/Chester.topojson", function (error, topo) {
     initBorder()
     
 });
+
+function doExpand() {
+    expander.expand();
+}
 
 function initBorder() {
     // Find the outer border of all the areas
@@ -198,8 +202,8 @@ function initMap() {
             pop = feature.properties.VAPERSONS
             var dems = feature.properties.democrats
             var reps = feature.properties.republicans
-            if (reps > dems) return name + " R +" + (reps - dems)
-            else return name + " D +" + (dems - reps)
+            if (reps > dems) return "#"+ i + " " + name + " R+" + (reps - dems)
+            else return "#"+ i + " " + name + " D+" + (dems - reps)
         })
 
 
