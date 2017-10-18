@@ -3,6 +3,9 @@ var pi = Math.PI,
 var projection, geoGenerator;
 var nDistricts = 3
 var oversizeThreshold = 1.03;
+// Name of the overall objects
+// in the topojson file
+var mainTopology = "Chester"
 
 // Colors for each user-assigned district
 var districtColors = ["green", "orange", "rgb(200, 60, 200)"]
@@ -28,29 +31,31 @@ var svg = d3.select("#mapSvg")
     .attr("height", height);
 
 
-var geojson = []
-
+var geojson = null;
+var topology = null;
 // Main startup
 
 
-d3.json("data_import/Chester.geojson", function (error, x) {
-    geojson = x;
+d3.json("data_import/Chester.topojson", function (error, topo) {
+    topology = topo;
+    geojson  = topojson.feature(topology, topology.objects.Chester);
     initializePopulation();
     initMap();
     refreshScores();
     refreshPalette();
-    d3.json("data/Penn County/Chester.geojson", function (error, json) {
-        initBorder(json)
-    })
+    initBorder()
+    
 });
 
-function initBorder(borderJson) {
+function initBorder() {
+    // Find the outer border of all the areas
+    // Note that this assumes to 
+    var border = topojson.merge(topology, 
+        topology.objects[mainTopology].geometries);
     d3.select("#mapSvg")
         .select('#border')
-        .selectAll("path")
-        .data(borderJson.features)
-        .enter()
         .append('path')
+        .datum(border)
         .style("stroke", "blue")
         .style("stroke-width", 5)
         .style("fill", "none")

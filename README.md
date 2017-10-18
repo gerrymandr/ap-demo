@@ -66,6 +66,10 @@ https://github.com/aaron-strauss/precinct-shapefiles/blob/master/pa/2011_pa_prec
 Used QGIS to select data for a single county and
 save it as a separate geojson.
 
+Used the topojson-server node.js package to 
+convert geojson to topojson.
+
+You could also use http://mapshaper.org/
 
 ### Election returns by MCDS
 ```
