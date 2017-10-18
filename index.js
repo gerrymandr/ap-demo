@@ -22,6 +22,11 @@ var currentDistrictBrush = 0
 // Is the mouse down
 var dragging = false;
 
+// Number of empty areas to
+// examine for possible assignment
+// each time the user clicks "Fill"
+var fillRate = 30;
+
 var minLightness = 40;
 var width = 600,
     height = 600;
@@ -48,7 +53,7 @@ d3.json("data_import/Chester.topojson", function (error, topo) {
 });
 
 function doExpand() {
-    expander.expand();
+    expander.expand(fillRate);
 }
 
 function initBorder() {
@@ -70,6 +75,8 @@ function initBorder() {
 // and therefore desired population
 // per district
 function initializePopulation() {
+    var totalDems = 0;
+    var totalReps = 0;
     for (var i = 0; i < geojson.features.length; i++) {
         var feature = geojson.features[i];
         totalPopulation += feature.properties.VAPERSONS
@@ -77,9 +84,12 @@ function initializePopulation() {
         var reps = feature.properties.republicans
         if ((dems != null) && (reps != null)) {
             maxBias = Math.max(maxBias, Math.abs(dems - reps))
+            totalDems += dems;
+            totalReps += reps;
         }
     }
-    targetPopulation = totalPopulation / nDistricts
+    targetPopulation = totalPopulation / nDistricts;
+    console.log("dems:" + totalDems + " reps:"+totalReps)
 }
 
 // Assign an area to a district
