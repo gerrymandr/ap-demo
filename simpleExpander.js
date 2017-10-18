@@ -8,11 +8,15 @@ class SimpleExpander {
         // Fiddle with these to get a good user experience
     
         // The larger this is, the more the system
-        // avoids over-filling districts
+        // avoids over-filling districts.
+        // Can be any positive number, but probably
+        // should be in the range from 1 to 10
         this.overfillPenalty = 5;
         // The larger this is, the more willing the system
-        // is to expand into areas with few assigned districts
-        this.neutralExpansionRate = this.expansionRate(0.5);
+        // is to expand into areas with few assigned districts.
+        // Should be a number from 0 to 1
+        var convexityReward = 1.0
+        this.neutralExpansionRate = this.expansionRate(convexityReward);
     
     }
     // Assign more areas to districts
