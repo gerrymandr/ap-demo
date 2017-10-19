@@ -59,12 +59,15 @@
   
   <h2>Redistrict Chester County, PA</h2>
 
-  This page allows you to assign the voting areas of Chester county to one of three districts (green, orange and purple). Then
-  see whether the Democrats or Republicans will win each district.
+  This page allows you to assign the precincts of Chester county to one of three congressional districts,
+  called green, orange and purple. 
+  The unassigned precincts are tinted red or blue to indicate a history of voting Republican or Democrat.
+  As you assign precincts to districts, we predict whether a Democrat or Republican will win each district.  
   <p>
-    In, Chester County major party votes where split 55% for Clinton and 45% for Trump. In a proportional representation
-    system you might expect Democrats would win two out of the three districts and that all three districts would be close
-    races.
+    In, Chester County the major party votes were split 55% Democrat and 45% Republican. 
+    That implies that in a proportional representation
+    system,  Democrats would win two of the three districts. If people were allocated to districts completely at random, 
+    all three districts would have that same splt and would go to the Democrats.
   </p>
   <ul>
     <li>Can you come up with a redistricting plan that gives the Republicans zero districts?</li>
@@ -75,9 +78,7 @@
       make the three districts?</li>
   </ul>
   <p>
-    Click on the circles to select which district you want to build. You can also click in an area that has been assigned and
-    drag your mouse to assign nearby areas. Use the Fill button to expand the districts to fill the whole
-    map.
+    Click on a circles to select which district you want to build. Then paint precincts on the map with that color.
   </p>
 
   <main>
@@ -90,11 +91,18 @@
         <g id="score"></g>
         <text x=10, y=180, style="font-family:monospace">Percent Democrat</text>
       </svg>
-      <button onclick="doExpand()" style="float:left; clear:left; font-size:12pt;"> Fill</button>
-      <div id="overflowWarning"  style="float:left; clear:left;visibility:hidden">
+      <button onclick="doExpand()" style="float:left; clear:left; font-size:12pt;">Fill</button>
+      <div>
+         &nbsp; Assign adjacent precincts to districts.
+      </div>
+      <p id="overflowWarning"  style="float:left; clear:left;visibility:hidden">
           Sorry, your redistricting plan has been rejected by the courts because some of the 
           districts are too large.
-      </div>
+      </p>
+      <button onclick="resetDistricts()" style="float:left; clear:left; font-size:12pt;">Reset</button>
+      <p id="summary"  style="float:left; clear:left;">
+        Summary will go here.
+      </p>
     </div>
     <svg id="mapSvg" width="600px" height="600px">
       <g id="images"></g>

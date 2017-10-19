@@ -76,7 +76,37 @@ You could also use http://mapshaper.org/
 data/chester_county_votes.txt
 ```
 
-### Adjacency matrix for MCDS
+###  Data processing steps
+
+Obtain election results from https://github.com/openelections/openelections-data-pa
+Note that for each location, there are separate rows for each candidate
+Import into QGIS as a delimited file with no spatial information
+
+Use GroupStats to create a layer with
+```
+name_upper,idIfPossible,democrats,republicans
+```
+
+Obtain shapefile with demographics from
+https://github.com/aaron-strauss/precinct-shapefiles
+
+Load into QGIS
+
+Create a new String column of width 100 NAME_UPPER = upper(NAME10)
+
+Join spatial layer with voting data layer on NAME_UPPER
+
+As desired, filter by county ID.
+
+Export as geojson
+
+Use 
+```
+geo2topo -o geo_and_votes.topojson geo_and_votes.geojson 
+```
+
+
+### Adjacency matrix for MCDS (old)
 Computed in PostGIS from MCDS shape files
 ```
 create table "PA_MCDS_graph" as

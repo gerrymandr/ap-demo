@@ -1,3 +1,4 @@
+/** Global constants */
 var pi = Math.PI,
     tau = 2 * pi;
 var projection, geoGenerator;
@@ -6,22 +7,9 @@ var oversizeThreshold = 1.03;
 // Name of the overall objects
 // in the topojson file
 var mainTopology = "Chester"
-
+var datafile = "data_import/Chester.topojson"
 // Colors for each user-assigned district
 var districtColors = ["green", "orange", "rgb(200, 60, 200)"]
-var districtPopulation = [0, 0, 0]
-var districtDemocrats = [0, 0, 0]
-var districtRepublicans = [0, 0, 0]
-var maxBias = 0
-var totalPopulation = 0;
-// Desired population for each district
-var targetPopulation = 0;
-
-// To which district are we currently assigning areas
-var currentDistrictBrush = 0
-// Is the mouse down
-var dragging = false;
-
 // Number of empty areas to
 // examine for possible assignment
 // each time the user clicks "Fill"
@@ -31,26 +19,77 @@ var minLightness = 40;
 var width = 600,
     height = 600;
 
+
+/** Variables determined when data are first loaded */
+var maxBias = 0
+var totalPopulation = 0;
+// Desired population for each district
+var targetPopulation = 0;
+
+var geojson = null;
+var topology = null;
+var expander = null;
+
+
+/** Variables that changes from user interactions */
+var nAssignedDistricts = 0
+var districtPopulation = [0, 0, 0]
+var districtDemocrats = [0, 0, 0]
+var districtRepublicans = [0, 0, 0]
+
+// To which district are we currently assigning areas
+var currentDistrictBrush = 0
+// Is the mouse down
+var dragging = false;
+
+
+
 var svg = d3.select("#mapSvg")
     .attr("width", width)
     .attr("height", height);
 
 
-var geojson = null;
-var topology = null;
-var expander = null;
+
 // Main startup
-d3.json("data_import/Chester.topojson", function (error, topo) {
-    topology = topo;
-    geojson  = topojson.feature(topology, topology.objects.Chester);
-    expander = new SimpleExpander(topology);
-    initializePopulation();
-    initMap();
+loadData();
+
+function loadData() {
+    d3.json(datafile, function (error, topo) {
+        topology = topo;
+        geojson  = topojson.feature(topology, topology.objects[mainTopology]);
+        expander = new SimpleExpander(topology);
+        initializePopulation();
+        initMap();
+        resetDistricts();
+    });
+}
+
+/** 
+ * Set all area assignments
+ * back to inital state. 
+*/
+function resetDistricts() {
+    nAssignedDistricts = 0
+    districtPopulation = [0, 0, 0]
+    districtDemocrats = [0, 0, 0]
+    districtRepublicans = [0, 0, 0]
+    // To which district are we currently assigning areas
+     currentDistrictBrush = 0
+    // Is the mouse down
+     dragging = false;  
+    for (var i = 0; i < geojson.features.length; i++) {
+        var feature = geojson.features[i];
+        feature.properties.district = null;
+        refreshMap(i);
+    }        
     refreshScores();
     refreshPalette();
-    initBorder()
+    initBorder();
+    var div = d3.select("#summary")
+    div.text("")        
     
-});
+        
+}
 
 function doExpand() {
     expander.expand(fillRate);
@@ -75,6 +114,9 @@ function initBorder() {
 // and therefore desired population
 // per district
 function initializePopulation() {
+    totalPopulation = 0;
+    targetPopulation = 0;
+
     var totalDems = 0;
     var totalReps = 0;
     for (var i = 0; i < geojson.features.length; i++) {
@@ -94,6 +136,7 @@ function initializePopulation() {
 
 // Assign an area to a district
 function assignToDistrict(feature, district) {
+    if (district == feature.properties.district) return;
     var pop = feature.properties.VAPERSONS
     var dems = feature.properties.democrats
     var reps = feature.properties.republicans
@@ -110,14 +153,22 @@ function assignToDistrict(feature, district) {
         districtDemocrats[feature.properties.district] += dems
         districtRepublicans[feature.properties.district] += reps
     }
+    nAssignedDistricts ++;
     refreshScores();
+    if (nAssignedDistricts == geojson.features.length) {
+        showSummary();
+    }
+}
+function showSummary() {
+    var message = "Congratulations.  You assigned all the precincts to districts."
+    d3.select("#summary").text(message)        
+    
 }
 
-function selectColor(d, i) {
-    var district = d.properties.district
+function selectColor(feature, i) {
+    var district = feature.properties.district
     if (district != null) return "";
     else {
-        var feature = geojson.features[i]
         var dems = feature.properties.democrats
         var reps = feature.properties.republicans
         if (dems > reps) {
@@ -172,8 +223,6 @@ function initMap() {
             // give each division an id
             return "division" + i
         })
-        .style("stroke", "rgb(200, 200, 200)")
-        .style("stroke-width", 1)
         .attr("class", function (d, i) {
             // Get the district that has been assigned by the user
             // Should be a zero-based number
@@ -183,6 +232,8 @@ function initMap() {
             if (district != null) return "district" + district;
             else return "unassigned"
         })
+        .style("stroke", "rgb(200, 200, 200)")
+        .style("stroke-width", 1)
         .attr('d', geoGenerator)
         .style("fill", selectColor)
         .on("mousedown", function (e, i) {
@@ -220,18 +271,14 @@ function initMap() {
 }
 
 // Refresh D3 binding
-// between features and map areas
+// for one division
 function refreshMap(division) {
     d3.select('#division' + division)
         .attr("class", function (d, i) {
-            // Get the district that has been assigned by the user
-            // Should be a zero-based number
-            // or missing for unassigned areas
-            // d.properties.district has already been updated
             var district = d.properties.district
-            // Use that to determine the area's color
+            // Use that to determine the area's style
             if (district != null) return "district" + district;
-            else return ""
+            else return "unassigned"
         })
         .style("fill", selectColor)
 }
