@@ -11,7 +11,7 @@ var datafile = "data/Penn VTD Data/Chester/Chester.topojson"
 // Names of fields in the geojson
 var populationField = "POPULATION"
 var democratsField = "PRES08_DEM"
-var republicansField = "PRE08_REP"
+var republicansField = "PRES08_REP"
 // Colors for each user-assigned district
 var districtColors = ["green", "orange", "rgb(200, 60, 200)"]
 // Number of empty areas to
