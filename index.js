@@ -7,7 +7,11 @@ var oversizeThreshold = 1.03;
 // Name of the overall objects
 // in the topojson file
 var mainTopology = "Chester"
-var datafile = "data_import/Chester.topojson"
+var datafile = "data/Penn VTD Data/Chester/Chester.topojson"
+// Names of fields in the geojson
+var populationField = "POPULATION"
+var democratsField = "PRES08_DEM"
+var republicansField = "PRE08_REP"
 // Colors for each user-assigned district
 var districtColors = ["green", "orange", "rgb(200, 60, 200)"]
 // Number of empty areas to
@@ -121,9 +125,9 @@ function initializePopulation() {
     var totalReps = 0;
     for (var i = 0; i < geojson.features.length; i++) {
         var feature = geojson.features[i];
-        totalPopulation += feature.properties.VAPERSONS
-        var dems = feature.properties.democrats
-        var reps = feature.properties.republicans
+        totalPopulation += feature.properties[populationField]
+        var dems = feature.properties[democratsField]
+        var reps = feature.properties[republicansField]
         if ((dems != null) && (reps != null)) {
             maxBias = Math.max(maxBias, Math.abs(dems - reps))
             totalDems += dems;
@@ -137,9 +141,9 @@ function initializePopulation() {
 // Assign an area to a district
 function assignToDistrict(feature, district) {
     if (district == feature.properties.district) return;
-    var pop = feature.properties.VAPERSONS
-    var dems = feature.properties.democrats
-    var reps = feature.properties.republicans
+    var pop = feature.properties[populationField]
+    var dems = feature.properties[democratsField]
+    var reps = feature.properties[republicansField]
     if (feature.properties.district != null) {
         districtPopulation[feature.properties.district] -= pop
         if ((dems != null) && (reps != null)) {
@@ -169,8 +173,8 @@ function selectColor(feature, i) {
     var district = feature.properties.district
     if (district != null) return "";
     else {
-        var dems = feature.properties.democrats
-        var reps = feature.properties.republicans
+        var dems = feature.properties[democratsField]
+        var reps = feature.properties[republicansField]
         if (dems > reps) {
             var hue = 240 //blue
             var saturation = 70
@@ -233,7 +237,7 @@ function initMap() {
             else return "unassigned"
         })
         .style("stroke", "rgb(200, 200, 200)")
-        .style("stroke-width", 1)
+        .style("stroke-width", 0)
         .attr('d', geoGenerator)
         .style("fill", selectColor)
         .on("mousedown", function (e, i) {
@@ -260,9 +264,9 @@ function initMap() {
         .text(function (d, i) {
             var feature = geojson.features[i]
             var name = feature.properties.NAME10
-            pop = feature.properties.VAPERSONS
-            var dems = feature.properties.democrats
-            var reps = feature.properties.republicans
+            pop = feature.properties.POPULATION
+            var dems = feature.properties[democratsField]
+            var reps = feature.properties[republicansField]
             if (reps > dems) return  name + " R+" + (reps - dems)
             else return  name + " D+" + (dems - reps)
         })
