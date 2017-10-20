@@ -267,8 +267,8 @@ function initMap() {
             pop = feature.properties.POPULATION
             var dems = feature.properties[democratsField]
             var reps = feature.properties[republicansField]
-            if (reps > dems) return  name + " R+" + (reps - dems)
-            else return  name + " D+" + (dems - reps)
+            if (reps > dems) return  name + " R+" + Math.round(reps - dems)
+            else return  name + " D+" + Math.round(dems - reps)
         })
 
 
