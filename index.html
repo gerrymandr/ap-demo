@@ -26,8 +26,9 @@
   }
 
   path {
-    stroke: black;
-    fill: white;
+    stroke: rgb(200, 200, 200);
+    stroke-width: 0px;
+    fill: black;
   }
 
   path.district0 {
@@ -54,29 +55,31 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
   <script src="//d3js.org/d3-tile.v0.0.min.js"></script>
   <script src="//d3js.org/topojson.v1.min.js"></script>
-  <script src="simpleExpander.js"></script>
+  <script src="district_expander.js"></script>
+  <script src="background_map.js"></script>
+  <script src="districts.js"></script>
   <script src="index.js"></script>
-  
+
   <h2>Redistrict Chester County, PA</h2>
 
   This page allows you to assign the precincts of Chester county to one of three congressional districts,
-  called green, orange and purple. 
+  called green, orange and purple.
   The unassigned precincts are tinted red or blue to indicate a history of voting Republican or Democrat.
   As you assign precincts to districts, we predict whether a Democrat or Republican will win each district
-  using the historical voting patterns for the precincts.  
+  using the historical voting patterns for the precincts.
   <p>
-    In 2004, Chester County's major party votes were split 48% Democrat and 52% Republican. 
-    Under something like proportional representation, that would suggest that Republicans would win two of the three districts. 
-    On the other hand, if people were allocated to districts completely at random, 
+    In 2004, Chester County's major party votes were split 48% Democrat and 52% Republican.
+    Under something like proportional representation, that would suggest that Republicans would win two of the three districts.
+    On the other hand, if people were allocated to districts completely at random,
     all three districts would have that same splt as the county and all would go Republicans.
   </p>
   <ul>
-    <li>Suppose you are part of the Republican redistricting committee. 
+    <li>Suppose you are part of the Republican redistricting committee.
       Can you come up with a redistricting plan that gives the Democrats zero districts?  To do that,
     you will have to "crack" the Democratic votes among the three districts.</li>
 
-    <li>Suppose you are part of the Democratic redistricting committee. 
-      Can you come up with a redistricting plan that gives the Republicans only one district?  To do that 
+    <li>Suppose you are part of the Democratic redistricting committee.
+      Can you come up with a redistricting plan that gives the Republicans only one district?  To do that
     you will have to "pack" all the Republicans into a single district.</li>
 
     <li>Lopsided districts tend to suppress voter turn-out because voters feel their votes do not matter. How lopsided can you
@@ -97,7 +100,7 @@
          &nbsp; Assign adjacent precincts to districts.
       </div>
       <p id="overflowWarning"  style="float:left; clear:left;visibility:hidden">
-          Sorry, your redistricting plan has been rejected by the courts because some of the 
+          Sorry, your redistricting plan has been rejected by the courts because some of the
           districts are too large.
       </p>
       <button onclick="resetDistricts()" style="float:left; clear:left; font-size:12pt;">Reset</button>
@@ -108,13 +111,12 @@
     <svg id="mapSvg" width="600px" height="600px">
       <g id="images"></g>
       <g id="lightbox">
-        <rect x=0 y=0 width="600px" height="600px" style="fill:white;opacity:.65" onMouseover="maskMouseOver()">
-        </rect>
+        <rect x=0 y=0 width="600px" height="600px" style="fill:white;opacity:.65"></rect>
       </g>
       <g id="areas"></g>
       <g id="border"></g>
     </svg>
-    
+
   </main>
 </body>
 
