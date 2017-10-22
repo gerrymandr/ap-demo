@@ -3,15 +3,15 @@ var pi = Math.PI,
     tau = 2 * pi;
 var projection, geoGenerator;
 var nDistricts = 3
-var oversizeThreshold = 1.03;
+var oversizeThreshold = 1.05;  // 5% over even population
 // Name of the overall objects
 // in the topojson file
 var mainTopology = "Chester"
 var datafile = "data/Penn VTD Data/Chester/Chester.topojson"
 // Names of fields in the geojson
 var populationField = "POPULATION"
-var democratsField = "PRES08_DEM"
-var republicansField = "PRES08_REP"
+var democratsField = "PRES04_DEM"
+var republicansField = "PRES04_REP"
 // Colors for each user-assigned district
 var districtColors = ["green", "orange", "rgb(200, 60, 200)"]
 // Number of empty areas to
@@ -97,6 +97,9 @@ function resetDistricts() {
 
 function doExpand() {
     expander.expand(fillRate);
+}
+function maskMouseOver() {
+    dragging = false;
 }
 
 function initBorder() {
@@ -291,28 +294,30 @@ function refreshMap(division) {
 // Refresh D3 binding between
 // the districts and the palette
 function refreshPalette() {
-    d3.select("#paletteSvg")
-        .selectAll('circle')
+    d3.select("#scoreSvg")
+        .selectAll('.selector')
         .data(districtColors)
-        .style("stroke", function (d, i) {
-            if (i == currentDistrictBrush) return "black";
-            else return districtColors[i];
+        .style("visibility", function (d, i) {
+            if (i == currentDistrictBrush) return "";
+            else return "hidden";
         })
         .enter()
-        .append("circle")
-        .attr("cx", function (d, i) { return 30 + i * 40 })
-        .attr("cy", 30)
-        .attr("r", 18)
-        .style("fill", function (d, i) {
+        .append('rect')
+        .attr("class", "selector")
+        .attr("x", function (d, i) { return 8 + 44 * i })
+        .attr("y", "25")
+        .attr("width", "38")
+        .attr("height", "108")
+        .style("fill", "none")
+        .style("stroke-width", "5")
+        .style("stroke", function (d, i) {
             return districtColors[i];
         })
-        .style("stroke-width", 4)
-        // Shouldn't have to set this here
-        // but it doesn't seem to get initialized properly
-        .style("stroke", function (d, i) {
-            if (i == currentDistrictBrush) return "black";
-            else return districtColors[i];
+        .style("visibility", function (d, i) {
+            if (i == currentDistrictBrush) return "";
+            else return "hidden";
         })
+        .style("fill", "none")
         .on("click", function (e, i) {
             currentDistrictBrush = i;
             dragging = false;
@@ -324,16 +329,15 @@ function refreshPalette() {
 // and their scores
 function refreshScores() {
     // Colored border for each fill tank
-
     d3.select("#scoreSvg")
         .selectAll('.targetpop')
         .data(districtPopulation)
         .enter()
         .append('rect')
         .attr("class", "targetpop")
-        .attr("x", function (d, i) { return 10 + 40 * i })
-        .attr("y", "25")
-        .attr("width", "36")
+        .attr("x", function (d, i) { return 12 + 44 * i })
+        .attr("y", "29")
+        .attr("width", "30")
         .attr("height", "100")
         .style("fill", "white")
         .style("stroke-width", 3)
@@ -358,12 +362,12 @@ function refreshScores() {
         .selectAll('.fraction')
         .data(districtPopulation)
         .attr("height", function (d, i) { return 100 * districtPopulation[i] / targetPopulation })
-        .attr("y", function (d, i) { return 25 + 100 - (100 * districtPopulation[i] / targetPopulation) })
+        .attr("y", function (d, i) { return 25+ 4+ 100 - (100 * districtPopulation[i] / targetPopulation) })
         .enter()
         .append('rect')
         .attr("class", "fraction")
-        .attr("x", function (d, i) { return 10 + 40 * i })
-        .attr("width", "36")
+        .attr("x", function (d, i) { return 12 + 44 * i })
+        .attr("width", "30")
         .style("fill", function (d, i) {
             return districtColors[i];
         })
@@ -392,9 +396,9 @@ function refreshScores() {
         .append('text')
         .attr("class", "predictedWinner")
         .attr("height", 20)
-        .attr("y", 150)
-        .attr("x", function (d, i) { return 10 + 40 * i })
-        .attr("width", "36")
+        .attr("y", 154)
+        .attr("x", function (d, i) { return 10 + 44 * i })
+        .attr("width", "44")
         .style("font-family", "monospace")
         .text(percentageText)
 
