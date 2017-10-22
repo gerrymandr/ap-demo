@@ -15,7 +15,7 @@ class SimpleExpander {
         // The larger this is, the more willing the system
         // is to expand into areas with few assigned districts.
         // Should be a number from 0 to 1
-        var convexityReward = 1.0
+        var convexityReward = 0.5
         this.neutralExpansionRate = this.expansionRate(convexityReward);
     
     }
@@ -41,8 +41,7 @@ class SimpleExpander {
             // more precincts
             var expansionRates = new Array(nDistricts)
             for (var d = 0; d < nDistricts; d++) {
-                var districtPopulation = districtDemocrats[d] + districtRepublicans[d];
-                var fullness = districtPopulation/targetPopulation              
+                var fullness = districtPopulation[d]/targetPopulation              
                 expansionRates[d] = this.expansionRate(fullness);
             }
 
@@ -69,6 +68,7 @@ class SimpleExpander {
     // that has its district already assigned, or select null
     selectNeighbor(expansionRates, neighborhood) {
         var cummWeights = new Array(neighborhood.length)
+        var weights = new Array(neighborhood.length)
         var totalWeights = 0.0;
         for (var n=0;n<neighborhood.length; n++) {
             var neighbor = this.features[neighborhood[n]];
@@ -78,12 +78,16 @@ class SimpleExpander {
             } else {
                 weight = this.neutralExpansionRate;
             }
+            weights[n] = weight; 
             cummWeights[n] = weight + totalWeights;
             totalWeights += weight;
         }                
         var x = Math.random() * totalWeights;
         for (var n=0;n<neighborhood.length; n++) {
             if (x<cummWeights[n]) {
+                // Select neightbor n, though
+                // we only get the neighbor's district if the 
+                //neighbor is assigned to a district
                 var neighbor = this.features[neighborhood[n]];
                 if (neighbor.properties.district != null) {
                     return neighbor;
