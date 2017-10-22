@@ -135,7 +135,7 @@ function initializePopulation() {
         }
     }
     targetPopulation = totalPopulation / nDistricts;
-    console.log("dems:" + totalDems + " reps:"+totalReps)
+    console.log("dems:" + totalDems + " reps:"+totalReps + " percent dem:" + Math.round(100* (totalDems/(totalDems+totalReps)) ))
 }
 
 // Assign an area to a district
