@@ -150,6 +150,8 @@ function assignToDistrict(feature, district) {
             districtDemocrats[feature.properties.district] -= dems
             districtRepublicans[feature.properties.district] -= reps
         }
+    } else {
+        nAssignedDistricts ++;       
     }
     feature.properties.district = district
     districtPopulation[feature.properties.district] += pop
@@ -157,7 +159,6 @@ function assignToDistrict(feature, district) {
         districtDemocrats[feature.properties.district] += dems
         districtRepublicans[feature.properties.district] += reps
     }
-    nAssignedDistricts ++;
     refreshScores();
     if (nAssignedDistricts == geojson.features.length) {
         showSummary();
