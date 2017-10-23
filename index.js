@@ -295,33 +295,11 @@ function refreshMap(division) {
 // the districts and the palette
 function refreshPalette() {
     d3.select("#scoreSvg")
-        .selectAll('.selector')
+        .selectAll('.targetpop')
         .data(districtColors)
-        .style("visibility", function (d, i) {
-            if (i == currentDistrictBrush) return "";
-            else return "hidden";
-        })
-        .enter()
-        .append('rect')
-        .attr("class", "selector")
-        .attr("x", function (d, i) { return 8 + 44 * i })
-        .attr("y", "25")
-        .attr("width", "38")
-        .attr("height", "108")
-        .style("fill", "none")
-        .style("stroke-width", "5")
-        .style("stroke", function (d, i) {
-            return districtColors[i];
-        })
-        .style("visibility", function (d, i) {
-            if (i == currentDistrictBrush) return "";
-            else return "hidden";
-        })
-        .style("fill", "none")
-        .on("click", function (e, i) {
-            currentDistrictBrush = i;
-            dragging = false;
-            refreshPalette()
+        .style("stroke-width", function (d, i) {
+            if (i == currentDistrictBrush) return 8;
+            else return 3;
         })
 }
 
