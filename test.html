@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head>
+<style>
+  body {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    min-height: 100vh;
+    /* tell body to fill viewport */
+    display: flex;
+    flex-direction: column;
+  }
+	#test {
+		width: 800px;
+			height: 200px;
+	}
+  main {
+    display: flex;
+    flex-direction: row;
+  }
+
+  #controls {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h2 {
+    font-size: x-large;
+    text-align: center;
+  }
+
+  path {
+    stroke: rgb(200, 200, 200);
+    stroke-width: 0px;
+    fill: black;
+  }
+
+  path.district0 {
+    fill: green;
+    opacity: 0.80;
+  }
+
+  path.district1 {
+    fill: orange;
+    opacity: 0.80;
+  }
+
+  path.district2 {
+    opacity: 0.80;
+    fill: rgb(200, 60, 200);
+  }
+
+  path.unassigned {
+    opacity: 0.80;
+  }
+  .CircleChart {}
+</style>
+
+<script src="lib/d3.v3.min.js"></script>
+<script src="lib/d3-tile.v0.0.min.js"></script>
+<script src="lib/d3.chart.min.js"></script>
+
+</head>
+<body>
+
+  <h2>Circle Drawing Test</h2>
+   <div id="test"></div>
+
+<script src="circle_chart.js"></script>
+</body>
+
+</html>

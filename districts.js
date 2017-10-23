@@ -47,6 +47,7 @@ function initMap() {
 function districtPercentages() {
 
 }
+
 function totalPopAndRepublicansAndDemocratPerDistrict() {
   var regions = d3.selectAll('#mapSvg path').data();
 
