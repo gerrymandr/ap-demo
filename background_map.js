@@ -1,4 +1,5 @@
 function initBackgroundMapTile(mapOverlayProjection) {
+  
     // TODO: somehow I'm not understanding this bit. What are the units for these?
     // Good reference code: http://bl.ocks.org/mbostock/eb0c48375fcdcdc00c54a92724733d0d
     // Build background tiles

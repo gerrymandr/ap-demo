@@ -7,12 +7,13 @@ function mapSize() {
   return [width, height];
 }
 
+var selectedDistrict = "district0";
+
 function initMap() {
     // for debugging only
-    var selectedDistrict = "district0";
+
 
     d3.json("Chester.geojson", function (error, geojson) {
-
 
           projection = d3.geoMercator()
               .fitSize(mapSize(), geojson);
@@ -27,17 +28,38 @@ function initMap() {
               .enter()
               .append('path')
               .attr('d', geoGenerator) // bind the path data
-              .on("click", function (e, i) {
+              .on("click", function (d, i) {
                 // TODO: click on an existing district and paint the style elsewhere
                 // stealing dragging example https://bl.ocks.org/mbostock/a84aeb78fea81e1ad806
                 if (d3.event.defaultPrevented) return; // dragged
 
                 // TODO: should come from the state of the widget for selecting districts
-                d3.select(this).attr("class", "district0");
+
+                d.properties.district = selectedDistrict;
+
+                d3.select(this).attr("class", d.properties.district);
               })
 
             initBackgroundMapTile(projection);
     });
+}
+
+function districtPercentages() {
+
+}
+function totalPopAndRepublicansAndDemocratPerDistrict() {
+  var regions = d3.selectAll('#mapSvg path').data();
+
+  return d3.nest()
+    .key(function(d) { return d.properties.district; })
+    .rollup(
+      function(district) {
+      return {
+          republicans: d3.sum(district, function(d) { return d.properties.republicans; }),
+          democrats: d3.sum(district, function(d) { return d.properties.democrats; }),
+          population: d3.sum(district, function(d) { return d.properties.population; })
+        } })
+    .entries(regions)
 }
 
 function computeColorForParty(d, maxPartyGapPerRegion) {
