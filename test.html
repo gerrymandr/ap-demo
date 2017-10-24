@@ -29,7 +29,7 @@
     text-align: center;
   }
 
-  path {
+  path.not-assigned {
     stroke: rgb(200, 200, 200);
     stroke-width: 0px;
     fill: black;
@@ -59,14 +59,15 @@
 <script src="lib/d3.v3.min.js"></script>
 <script src="lib/d3-tile.v0.0.min.js"></script>
 <script src="lib/d3.chart.min.js"></script>
-
+<script src="lib/pie.js"></script>
+<script src="lib/legend.js"></script>
 </head>
 <body>
 
-  <h2>Circle Drawing Test</h2>
-   <div id="test"></div>
+  <h2>Clickable Pie Chart</h2>
+   <div id="pie"></div>
 
-<script src="circle_chart.js"></script>
+<script src="clickable_pie_chart.js"></script>
 </body>
 
 </html>

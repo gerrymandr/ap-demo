@@ -9,17 +9,16 @@ function mapSize() {
 
 var selectedDistrict = "district0";
 
-function initMap() {
+function initMap(center, scale) {
+
     // for debugging only
-
-
     d3.json("Chester.geojson", function (error, geojson) {
 
-          projection = d3.geoMercator()
-              .fitSize(mapSize(), geojson);
+          projection = d3.geo.mercator()
+			 .center(center)
+	                 .scale(scale);
 
-          geoGenerator = d3.geoPath()
-              .projection(projection);
+          mapPathsIn2D = d3.geo.path().projection(projection); 
 
           // Build vectors for each voting areas
           d3.select("#mapSvg")
@@ -27,7 +26,7 @@ function initMap() {
               .data(geojson.features)
               .enter()
               .append('path')
-              .attr('d', geoGenerator) // bind the path data
+              .attr('d', mapPathsIn2D) // bind the path data
               .on("click", function (d, i) {
                 // TODO: click on an existing district and paint the style elsewhere
                 // stealing dragging example https://bl.ocks.org/mbostock/a84aeb78fea81e1ad806
@@ -40,11 +39,11 @@ function initMap() {
                 d3.select(this).attr("class", d.properties.district);
               })
 
-            initBackgroundMapTile(projection);
+        //    initBackgroundMapTile(projection);
     });
 }
 
-function districtPercentages() {
+function districtPercentagesOfPop() {
 
 }
 
@@ -63,6 +62,7 @@ function totalPopAndRepublicansAndDemocratPerDistrict() {
     .entries(regions)
 }
 
+// TODO: move this in precomputation
 function computeColorForParty(d, maxPartyGapPerRegion) {
 
         var minLightness = 40;

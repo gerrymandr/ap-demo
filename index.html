@@ -18,6 +18,7 @@
   #controls {
     flex-direction: column;
     align-items: center;
+	    margin-right: 300px;
   }
 
   h2 {
@@ -25,7 +26,7 @@
     text-align: center;
   }
 
-  path {
+  path.unassigned {
     stroke: rgb(200, 200, 200);
     stroke-width: 0px;
     fill: black;
@@ -52,9 +53,13 @@
 </style>
 
 <body>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
-  <script src="//d3js.org/d3-tile.v0.0.min.js"></script>
-  <script src="//d3js.org/topojson.v1.min.js"></script>
+ <script src="lib/d3.v3.min.js"></script>
+ <script src="lib/d3-tile.v0.0.min.js"></script>
+ <script src="lib/d3.chart.min.js"></script>
+ <script src="lib/pie.js"></script>
+ <script src="lib/legend.js"></script>
+ <script src="lib/clickable_pie.js"></script>
+
   <script src="district_expander.js"></script>
   <script src="background_map.js"></script>
   <script src="districts.js"></script>
@@ -91,10 +96,11 @@
 
   <main>
     <div id="controls" style="width:200px">
-      <svg id="scoreSvg" width="200px" height="200px" style="float:left; clear:left">
-        <g id="score"></g>
-        <text x=10, y=180, style="font-family:monospace">Percent Democrat</text>
-      </svg>
+     <div id="pie"></div>
+
+
+     <script src="load_pie_chart.js"></script>
+
       <button onclick="doExpand()" style="float:left; clear:left; font-size:12pt;">Fill</button>
       <div>
          &nbsp; Assign adjacent precincts to districts.
@@ -108,14 +114,14 @@
         Summary will go here.
       </p>
     </div>
-    <svg id="mapSvg" width="600px" height="600px">
-      <g id="images"></g>
-      <g id="lightbox">
-        <rect x=0 y=0 width="600px" height="600px" style="fill:white;opacity:.65"></rect>
-      </g>
-      <g id="areas"></g>
-      <g id="border"></g>
-    </svg>
+
+   <div id="map">
+      <svg id="mapSvg" width="600px" height="600px">
+        <g id="images"></g>
+        <g id="areas"></g>
+        <g id="border"></g>
+      </svg>
+   </div>
 
   </main>
 </body>

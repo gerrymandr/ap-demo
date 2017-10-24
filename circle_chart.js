@@ -103,7 +103,6 @@ d3.chart("CircleChart", {
               return chart.xScale(d.value);
             })
             .attr("r", chart.radius())
-		.on("click", function(d) { d3.select(this).transition().attr("r", chart.radius() * 1.20);  });
         }
       }
 
@@ -177,38 +176,26 @@ d3.chart("CircleChart").extend("LabeledCircleChart", {
     // assign a css class name to the chart highest container
     // so that we can also style it
     chart.base.classed("LabeledCircleChart", true);
-    chart.bases.labels = this.base.append("g").classed("labels", true);
 
-    // create a labels layer
-    this.layer("labels", chart.bases.labels, {
-      dataBind: function(data) {
-        return this.selectAll("text")
-          .data(data);
-      },
-      insert: function() {
-        return this.append("text")
-          .attr("text-anchor", "middle")
-          .classed("label", true);
-      },
-      events: {
-        enter: function() {
-          var chart = this.chart();
+    this.layer("circles").on('enter', function() {
 
-          // position the labels at the same x of the circle
-          // but about two radii's worth above (Which really gives)
-          // one radius worth of padding.
-          return this.attr("x", function(d) {
-            return chart.xScale(d.value);
-          })
-          .attr("y", (chart.height() / 2) - (chart.radius()*2))
-          .text(function(d) {
-            return d.name;
-          })
-          .style("font-size", "8pt");
-        }
-      }
+	 console.log(this);
+
+	  this.on('click', function(d) {
+
+		  chart.base.selectAll('circle')
+		       .transition()
+		       .attr('r', chart.radius());
+
+		     d3.select(this)
+		       .transition()	
+		       .attr('r', chart.radius() * 1.70);
+
+		     chart.trigger("change:selectedLabel", this)
+	   });
+
     });
-  }
+   }
 });
 
 // Render values:
