@@ -63,6 +63,7 @@ function loadData() {
         geojson  = topojson.feature(topology, topology.objects[mainTopology]);
         expander = new SimpleExpander(topology);
         initializePopulation();
+        initializeVoteCounts()
         initMap();
         resetDistricts();
     });
@@ -102,6 +103,19 @@ function maskMouseOver() {
     dragging = false;
 }
 
+
+
+function changeElection() {
+    var selector = d3.select("#electionSelector")
+    var selectedElection = selector.property('value')
+    
+    democratsField = selectedElection + "_DEM"
+    republicansField = selectedElection + "_REP"
+    initializeVoteCounts()
+    resetDistricts()
+    initMap()
+}
+
 function initBorder() {
     // Find the outer border of all the areas
     // Note that this assumes to 
@@ -124,21 +138,28 @@ function initializePopulation() {
     totalPopulation = 0;
     targetPopulation = 0;
 
+    for (var i = 0; i < geojson.features.length; i++) {
+        var feature = geojson.features[i];
+        totalPopulation += feature.properties[populationField]
+        
+    }
+    targetPopulation = totalPopulation / nDistricts;
+}
+
+function initializeVoteCounts() {
     var totalDems = 0;
     var totalReps = 0;
     for (var i = 0; i < geojson.features.length; i++) {
         var feature = geojson.features[i];
-        totalPopulation += feature.properties[populationField]
         var dems = feature.properties[democratsField]
         var reps = feature.properties[republicansField]
         if ((dems != null) && (reps != null)) {
             maxBias = Math.max(maxBias, Math.abs(dems - reps))
             totalDems += dems;
             totalReps += reps;
-        }
+        }   
     }
-    targetPopulation = totalPopulation / nDistricts;
-    console.log("dems:" + totalDems + " reps:"+totalReps + " percent dem:" + Math.round(100* (totalDems/(totalDems+totalReps)) ))
+    console.log("dems:" + totalDems + " reps:"+totalReps + " percent dem:" + Math.round(100* (totalDems/(totalDems+totalReps)) ))    
 }
 
 // Assign an area to a district
@@ -167,6 +188,8 @@ function assignToDistrict(feature, district) {
         showSummary();
     }
 }
+
+
 function showSummary() {
     var message = "Congratulations.  You assigned all the precincts to districts."
     d3.select("#summary").text(message)        
@@ -223,7 +246,7 @@ function initMap() {
 
     // Build vectors for each voting areas
     d3.select("#mapSvg")
-        .selectAll('#areas')
+        .select('#areas').selectAll("path")
         .data(geojson.features)
         .enter()
         .append('path')
