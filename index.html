@@ -41,11 +41,12 @@
   }
 
   path.district2 {
-    opacity: 0.80;
     fill: rgb(200, 60, 200);
+    opacity: 0.80;
   }
 
   path.unassigned {
+    stroke-width: 0;
     opacity: 0.80;
   }
 </style>
@@ -98,10 +99,16 @@
         <g id="score"></g>
         <text x=10, y=180, style="font-family:monospace">Percent Democrat</text>
       </svg>
-      <button onclick="doExpand()" style="float:left; clear:left; font-size:12pt;">Fill</button>
-      <div>
-         &nbsp; Assign adjacent precincts to districts.
-      </div>
+      <p>
+      <button onclick="doExpand()" title="Expand districts to fill adjacent precincts" style="font-size:12pt;">Fill</button>
+      <button onclick="resetDistricts()" style="font-size:12pt;" title="Clear all district assignments">Reset</button>
+      <select id="electionSelector" onChange="changeElection()" title="Historical election results">
+        <option value="PRES04">Pres 2004</option>
+        <option value="PRES08">Pres 2008</option>
+        <option value="PRES12">Pres 2012</option>
+      </select>
+    
+    </p>
       <p id="overflowWarning"  style="float:left; clear:left;visibility:hidden">
           Sorry, your redistricting plan has been rejected by the courts because some of the 
           districts are too large.
@@ -109,16 +116,7 @@
 
         <p id="summary"  style="float:left; clear:left;">
       </p>
-      <p>
-       Select historical election results to predict results for your plan.
-        <select id="electionSelector" onChange="changeElection()">
-          <option value="PRES04">Pres 2004</option>
-          <option value="PRES08">Pres 2008</option>
-          <option value="PRES12">Pres 2012</option>
-        </select>
-      </p>
-      <p><button onclick="resetDistricts()" style="float:left; clear:left; font-size:12pt;">Reset</button>
-      </p>
+
     </div>
 
     <svg id="mapSvg" width="600px" height="600px">
