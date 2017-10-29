@@ -30,10 +30,10 @@ var totalPopulation = 0;
 // Desired population for each district
 var targetPopulation = 0;
 
-var geojson = null;
 var topology = null;
 var expander = null;
-
+var features = null;
+var geojson = null;
 
 /** Variables that changes from user interactions */
 var nAssignedDistricts = 0
@@ -61,6 +61,7 @@ function loadData() {
     d3.json(datafile, function (error, topo) {
         topology = topo;
         geojson  = topojson.feature(topology, topology.objects[mainTopology]);
+        features  = geojson.features;
         expander = new SimpleExpander(topology);
         initializePopulation();
         initializeVoteCounts()
@@ -82,8 +83,8 @@ function resetDistricts() {
      currentDistrictBrush = 0
     // Is the mouse down
      dragging = false;  
-    for (var i = 0; i < geojson.features.length; i++) {
-        var feature = geojson.features[i];
+    for (var i = 0; i < features.length; i++) {
+        var feature = features[i];
         feature.properties.district = null;
         refreshMap(i);
     }        
@@ -125,8 +126,8 @@ function initBorder() {
         .select('#border')
         .append('path')
         .datum(border)
-        .style("stroke", "blue")
-        .style("stroke-width", 5)
+        .style("stroke", "black")
+        .style("stroke-width", 4)
         .style("fill", "none")
         .style("opacity", "1.0")
         .attr('d', geoGenerator)
@@ -138,8 +139,8 @@ function initializePopulation() {
     totalPopulation = 0;
     targetPopulation = 0;
 
-    for (var i = 0; i < geojson.features.length; i++) {
-        var feature = geojson.features[i];
+    for (var i = 0; i < features.length; i++) {
+        var feature = features[i];
         totalPopulation += feature.properties[populationField]
         
     }
@@ -149,8 +150,8 @@ function initializePopulation() {
 function initializeVoteCounts() {
     var totalDems = 0;
     var totalReps = 0;
-    for (var i = 0; i < geojson.features.length; i++) {
-        var feature = geojson.features[i];
+    for (var i = 0; i < features.length; i++) {
+        var feature = features[i];
         var dems = feature.properties[democratsField]
         var reps = feature.properties[republicansField]
         if ((dems != null) && (reps != null)) {
@@ -184,7 +185,7 @@ function assignToDistrict(feature, district) {
         districtRepublicans[feature.properties.district] += reps
     }
     refreshScores();
-    if (nAssignedDistricts == geojson.features.length) {
+    if (nAssignedDistricts == features.length) {
         showSummary();
     }
 }
@@ -221,9 +222,38 @@ function selectColor(feature, i) {
 function initMap() {
     projection = d3.geoMercator()
         .fitSize([width, height], geojson);
-
+   
+    
+/*
+// d3-cartogram assumes that topologies
+    // always have transforms
+    // HELP: What is the right transform???
+    if (topology.transform == null) {
+        topology.transform = {scale: [0.5, 0.5], translate:[0,0]} // {scale: projection.scale() * tau, translate: projection([0, 0]) }
+    }
+    
+    carto = d3.cartogram()
+        .projection(projection)
+        .value(function(d) {
+            // TODO: return a scaled version of the population
+        //return  100.0 * d.properties[populationField] / 1000.0;
+        return  1;
+        });
+     
+    var geometries = topology.objects[mainTopology].geometries
+    var newFeatures = carto(topology, geometries).features;
+    // Copy properties
+    // I think the cartogram API has a nicer way of doing 
+    // this via the cartogram.properties
+    for (var i=0; i< features.length; i++) {
+        newFeatures[i].properties = features[i].properties
+    }
+    features = newFeatures
+    
+*/
     geoGenerator = d3.geoPath()
         .projection(projection);
+
 
     // Build background tiles
     var tiles = d3.tile()
@@ -247,7 +277,7 @@ function initMap() {
     // Build vectors for each voting areas
     d3.select("#mapSvg")
         .select('#areas').selectAll("path")
-        .data(geojson.features)
+        .data(features)
         .enter()
         .append('path')
         .attr("id", function (d, i) {
@@ -264,15 +294,15 @@ function initMap() {
             else return "unassigned"
         })
         .style("stroke", "rgb(200, 200, 200)")
-        .style("stroke-width", 0)
+        .style("stroke-width", 1)
         .attr('d', geoGenerator)
         .style("fill", selectColor)
         .on("mousedown", function (e, i) {
-            if (geojson.features[i].properties.district != null) {
-                currentDistrictBrush = geojson.features[i].properties.district
+            if (features[i].properties.district != null) {
+                currentDistrictBrush = features[i].properties.district
                 refreshPalette();
             } else {
-                assignToDistrict(geojson.features[i], currentDistrictBrush)
+                assignToDistrict(features[i], currentDistrictBrush)
                 refreshMap(i);
             }
             dragging = true;
@@ -282,14 +312,14 @@ function initMap() {
         })
         .on("mouseenter", function (e, i) {
             if (dragging) {
-                assignToDistrict(geojson.features[i], currentDistrictBrush)
+                assignToDistrict(features[i], currentDistrictBrush)
                 refreshMap(i);
                 refreshPalette();
             }
 
         }).append("svg:title")
         .text(function (d, i) {
-            var feature = geojson.features[i]
+            var feature = features[i]
             var name = feature.properties.NAME10
             pop = feature.properties.POPULATION
             var dems = feature.properties[democratsField]
