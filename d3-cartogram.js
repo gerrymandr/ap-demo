@@ -2473,7 +2473,7 @@
 	      .projection(null);
 
 	    var objects = object(projectedArcs, {type: "GeometryCollection", geometries: geometries})
-			.geometries.map(function(geom) {
+	        .geometries.map(function(geom) {
 	          return {
 	            type: "Feature",
 	            id: geom.id,
