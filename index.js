@@ -26,6 +26,8 @@ var width = 600,
 
 /** Variables determined when data are first loaded */
 var maxBias = 0
+var maxDemocratBias = 0
+var maxRepublicanBias = 0
 var totalPopulation = 0;
 // Desired population for each district
 var targetPopulation = 0;
@@ -34,6 +36,8 @@ var topology = null;
 var expander = null;
 var features = null;
 var geojson = null;
+var geometries
+var propertiesById = {};
 
 /** Variables that changes from user interactions */
 var nAssignedDistricts = 0
@@ -61,7 +65,13 @@ function loadData() {
     d3.json(datafile, function (error, topo) {
         topology = topo;
         geojson  = topojson.feature(topology, topology.objects[mainTopology]);
+        geometries = topology.objects[mainTopology].geometries
         features  = geojson.features;
+        for (var i=0; i< features.length; i++) {
+            var id = features[i].properties.NAME10
+            geometries[i].id = id
+            propertiesById[id] = features[i].properties
+        }
         expander = new SimpleExpander(topology);
         initializePopulation();
         initializeVoteCounts()
@@ -91,8 +101,7 @@ function resetDistricts() {
     refreshScores();
     refreshPalette();
     initBorder();
-    var div = d3.select("#summary")
-    div.text("")        
+    d3.select("#summary").text("")        
     
         
 }
@@ -156,6 +165,8 @@ function initializeVoteCounts() {
         var reps = feature.properties[republicansField]
         if ((dems != null) && (reps != null)) {
             maxBias = Math.max(maxBias, Math.abs(dems - reps))
+            maxDemocratBias = Math.max(maxBias, dems - reps)
+            maxRepublicanBias = Math.max(maxBias, reps - dems)
             totalDems += dems;
             totalReps += reps;
         }   
@@ -221,36 +232,8 @@ function selectColor(feature, i) {
 // between features and map areas
 function initMap() {
     projection = d3.geoMercator()
-        .fitSize([width, height], geojson);
-   
-    
-/*
-// d3-cartogram assumes that topologies
-    // always have transforms
-    // HELP: What is the right transform???
-    if (topology.transform == null) {
-        topology.transform = {scale: [0.5, 0.5], translate:[0,0]} // {scale: projection.scale() * tau, translate: projection([0, 0]) }
-    }
-    
-    carto = d3.cartogram()
-        .projection(projection)
-        .value(function(d) {
-            // TODO: return a scaled version of the population
-        //return  100.0 * d.properties[populationField] / 1000.0;
-        return  1;
-        });
-     
-    var geometries = topology.objects[mainTopology].geometries
-    var newFeatures = carto(topology, geometries).features;
-    // Copy properties
-    // I think the cartogram API has a nicer way of doing 
-    // this via the cartogram.properties
-    for (var i=0; i< features.length; i++) {
-        newFeatures[i].properties = features[i].properties
-    }
-    features = newFeatures
-    
-*/
+        .fitSize([width, height], geojson);    
+
     geoGenerator = d3.geoPath()
         .projection(projection);
 
@@ -278,12 +261,14 @@ function initMap() {
     d3.select("#mapSvg")
         .select('#areas').selectAll("path")
         .data(features)
+        .attr('d', geoGenerator)        
         .enter()
         .append('path')
         .attr("id", function (d, i) {
             // give each division an id
             return "division" + i
         })
+        .attr('d', geoGenerator)        
         .attr("class", function (d, i) {
             // Get the district that has been assigned by the user
             // Should be a zero-based number
@@ -295,7 +280,6 @@ function initMap() {
         })
         .style("stroke", "rgb(200, 200, 200)")
         .style("stroke-width", 1)
-        .attr('d', geoGenerator)
         .style("fill", selectColor)
         .on("mousedown", function (e, i) {
             if (features[i].properties.district != null) {
@@ -331,6 +315,80 @@ function initMap() {
 
 }
 
+var selectedCartogramProperty
+function changeCartogram() {
+    var selector = d3.select("#cartogramSelector")
+     selectedCartogramProperty = selector.property('value')
+    if (selectedCartogramProperty == "") {
+        // Revert to natural boundaries
+        initMap()
+    } else {
+        showCartogram()
+    }  
+}
+
+/**
+ * @returns A non-negative value indicating the relative size
+ * of the precinct on the cartogram
+ * @param {a geometry or feature of one precinct} d 
+ */
+function cartogramScore(d) {
+    var properties = d.properties ? d.properties : propertiesById[d.id]
+    var score
+    if (selectedCartogramProperty == "POPULATION")  {
+        score =  properties[populationField];
+    } else if (selectedCartogramProperty == "EXCESS_DEMS") {
+        var dems = properties[democratsField]
+        var reps = properties[republicansField]
+        score =  dems - reps
+    } else if (selectedCartogramProperty == "EXCESS_REPS") {
+        var dems = properties[democratsField]
+        var reps = properties[republicansField]
+        score = reps - dems 
+    } else {
+        score = 1
+    } 
+    return score
+}
+
+function showCartogram() {
+    d3.select("#summary").text("processing...")
+    var precincts = d3.select("#mapSvg")
+    .select('#areas').selectAll("path")
+
+    var values = precincts.data()
+    .map(cartogramScore)
+    .filter(function(n) {
+      return !isNaN(n);
+    })
+    .sort(d3.ascending)
+    var lo = values[0],
+    hi = values[values.length - 1];
+    
+    var scale = d3.scaleLinear()
+    .domain([lo, hi])
+    .range([1, 1000]);
+
+    carto = d3.cartogram()
+    .projection(projection)
+    .properties(function (d) {
+        return propertiesById[d.id]
+    })
+    .value(function(d) {
+         return scale(cartogramScore(d));
+    });
+ 
+  
+    var newFeatures = carto(topology, geometries).features;
+    precincts
+    .data(newFeatures)
+    .transition()
+    .duration(750)
+    .ease(d3.easeLinear)
+    .attr('d', carto.path)
+    d3.select("#summary").text("")
+    
+}
 // Refresh D3 binding
 // for one division
 function refreshMap(division) {

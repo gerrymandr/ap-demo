@@ -92,6 +92,13 @@
           a single district and then leave the other two districts favoring Republicans. Hint: that 
           packed district will need to have over 65% Democrats.
   </li>
+  <li>
+    Drawing district boundaries is complicated because some precincts are more dense and more biased.
+    You can reshape the precincts according to total population or according to the excess number 
+    voters of either party. 
+    
+    Note: This reshaping process takes a few seconds.
+  </li>
   </ul>
   <p>
     Click on a color below to select which district you want to build. Then paint precincts on the map with that color.
@@ -113,6 +120,12 @@
       </select>
     
     </p>
+    Reshape precincts:<select id="cartogramSelector" onChange="changeCartogram()" title="Use cartogram to reshape precincts">
+      <option value="">None</option>
+      <option value="POPULATION">Population</option>
+      <option value="EXCESS_DEMS">Excess Democrats</option>
+      <option value="EXCESS_REPS">Excess Republicans</option>
+    </select>
     <hr>
       <p id="overflowWarning"  style="float:left; clear:left;visibility:hidden">
           Sorry, your redistricting plan has been rejected by the courts because some of the 
