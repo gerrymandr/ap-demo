@@ -27,7 +27,19 @@
         <option value="Circle">Circle</option>
       </select>
     </form>
-    <script>
+<script
+			  src="https://code.jquery.com/jquery-3.2.1.js"
+			  integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+			  crossorigin="anonymous"></script>
+    
+<script>
+$(document).ready(function(){
+	$.ajax('http://eric.clst.org/wupl/Stuff/gz_2010_us_050_00_500k.json').done(function(data){
+		doMap(data);
+	});
+});
+
+var doMap = function(countyData){
       var raster = new ol.layer.Tile({
         source: new ol.source.OSM()
       });
@@ -81,8 +93,6 @@ var statesLayer = new ol.layer.Vector({
             })
           })
         })
-
-
 });
 
 
@@ -123,6 +133,7 @@ var map = new ol.Map({
       };
 
       addInteractions();
+};
     </script>
   </body>
 </html>
